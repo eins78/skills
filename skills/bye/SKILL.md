@@ -9,7 +9,7 @@ license: MIT
 metadata:
   author: eins78
   repo: https://github.com/eins78/skills
-version: "2.0"
+version: 2.1.0
 compatibility: Designed for Claude Code and Cursor
 ---
 
