@@ -2,7 +2,7 @@
 
 Agent Skills collection for Claude Code, following the [agentskills.io](https://agentskills.io/) spec.
 
-This is a documentation/specification repository — there is no build system, no tests, and no lint commands.
+Uses the [`skills`](https://www.npmjs.com/package/skills) CLI for validation.
 
 ## Skill Format
 
@@ -38,6 +38,37 @@ Every skill directory must contain a README.md with development documentation:
 - How the skill was tested and validated
 - Provenance (where patterns originated)
 - Known gaps and planned improvements
+
+## Validation
+
+```bash
+pnpm test        # runs: skills add . --list
+```
+
+This lists all discovered skills and exits non-zero if any skill fails to parse.
+
+## Digraph Rendering
+
+If SKILL.md contains ` ```dot ` blocks:
+1. Create `diagrams/` directory in skill folder
+2. Run `.dev/scripts/render-digraphs.sh SKILL.md ./diagrams`
+3. Commit both .dot and .png files
+4. Reference images in SKILL.md where helpful
+
+Requires: `brew install graphviz`
+
+## Key Principles
+
+1. **Be concise** — Only add what Claude doesn't already know
+2. **Progressive disclosure** — Overview in SKILL.md, details in referenced files
+3. **Third person** — "Processes files" not "I help you process files"
+4. **One level deep** — Reference files directly from SKILL.md, avoid nesting
+5. **Use checklists** — Multi-step workflows benefit from copy-paste checklists
+6. **Test across models** — Haiku may need more guidance than Opus
+
+## Skill Composition
+
+Skills can reference other skills by name in their instructions. Claude loads both skills when context matches — no formal import system, just mention by name.
 
 ## Adding and Editing Skills
 

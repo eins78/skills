@@ -8,3 +8,6 @@ Thumbs.db
 *~
 .idea/
 .vscode/
+
+# Dependencies
+node_modules/
