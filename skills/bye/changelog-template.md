@@ -4,7 +4,13 @@ Format and logic for creating or updating changelogs. Called from [SKILL.md](./S
 
 ## File Naming
 
-`changelogs/YYYY-MM-DD-topic-slug.md` — use today's date via `date +%Y-%m-%d`.
+`{changelog-dir}/YYYY-MM-DD-topic-slug.md` — use today's date via `date +%Y-%m-%d`.
+
+The changelog directory varies by project. Check these locations in order:
+1. `changelogs/`
+2. `docs/changelogs/`
+
+Use whichever exists. If neither exists, skip changelog creation.
 
 ## Template
 
@@ -49,11 +55,14 @@ Format and logic for creating or updating changelogs. Called from [SKILL.md](./S
 ## Finding Existing Changelogs
 
 ```bash
-# List recent changelogs
-ls -la changelogs/ | tail -5
+# Find the changelog directory
+ls -d changelogs/ docs/changelogs/ 2>/dev/null
+
+# List recent changelogs (use whichever dir exists)
+ls -la docs/changelogs/ changelogs/ 2>/dev/null | tail -5
 
 # Find changelogs from today
-ls changelogs/ | grep "$(date +%Y-%m-%d)"
+ls docs/changelogs/ changelogs/ 2>/dev/null | grep "$(date +%Y-%m-%d)"
 ```
 
 When unsure, ask: "Should I create a new changelog or update `changelogs/[file].md`?"
