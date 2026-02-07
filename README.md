@@ -6,7 +6,7 @@ Personal collection of [Agent Skills](https://agentskills.io/) for Claude Code a
 
 | Skill | Description |
 |-------|-------------|
-| [typescript-strict-patterns](skills/typescript-strict-patterns/) | TypeScript strict mode patterns — Zod at boundaries, const arrays over enums, no `!`/`as`, safe indexed access, `@total-typescript/tsconfig` |
+| [typescript-strict-patterns](skills/typescript-strict-patterns/) | TypeScript patterns — tsconfig, ESLint strict config, Zod at boundaries, discriminated unions, branded types, safe access |
 
 ## Installation
 
