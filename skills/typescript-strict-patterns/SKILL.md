@@ -6,7 +6,7 @@ license: MIT
 metadata:
   author: eins78
   repo: https://github.com/eins78/skills
-compatibility: Designed for Claude Code
+compatibility: Designed for Claude Code and Cursor
 ---
 
 # TypeScript Strict Patterns
