@@ -1,22 +1,29 @@
+---
+name: plot-approve
+description: >-
+  Merge an approved plan and fan out into implementation branches.
+  Part of the Plot workflow. Use on /plot-approve.
+globs: []
+license: MIT
+---
+
 # Plot: Approve Plan
 
 Merge an approved plan and fan out into implementation branches.
 
-## Setup
-
-Add a `## Plot Config` section to your project's `CLAUDE.md`:
-
-    ## Plot Config
-    - **Project board:** <your-project-name> (#<number>)  <!-- optional -->
-    - **Branch prefixes:** idea/, feature/, bug/, docs/, infra/
-    - **Plan directory:** docs/plans/
-    - **Archive directory:** docs/archive/
-
-## Instructions
-
 **Input:** `$ARGUMENTS` is the `<slug>` of an existing idea.
 
 Example: `/plot-approve sse-backpressure`
+
+## Setup
+
+Add a `## Plot Config` section to the adopting project's `CLAUDE.md`:
+
+    ## Plot Config
+    - **Project board:** <your-project-name> (#<number>)  <!-- optional, for `gh pr edit --add-project` -->
+    - **Branch prefixes:** idea/, feature/, bug/, docs/, infra/
+    - **Plan directory:** docs/plans/
+    - **Archive directory:** docs/archive/
 
 ### 1. Parse Input
 
@@ -33,7 +40,7 @@ Extract `slug` from `$ARGUMENTS` (trimmed, lowercase, hyphens only).
 Run the helper to get plan PR state:
 
 ```bash
-.claude/skills/plot/scripts/plot-pr-state.sh <slug>
+../plot/scripts/plot-pr-state.sh <slug>
 ```
 
 Handle each case:

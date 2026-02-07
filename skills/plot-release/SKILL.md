@@ -1,22 +1,29 @@
+---
+name: plot-release
+description: >-
+  Create a versioned release from delivered plans.
+  Part of the Plot workflow. Use on /plot-release.
+globs: []
+license: MIT
+---
+
 # Plot: Cut a Release
 
 Create a versioned release from delivered plans.
 
-## Setup
-
-Add a `## Plot Config` section to your project's `CLAUDE.md`:
-
-    ## Plot Config
-    - **Project board:** <your-project-name> (#<number>)  <!-- optional -->
-    - **Branch prefixes:** idea/, feature/, bug/, docs/, infra/
-    - **Plan directory:** docs/plans/
-    - **Archive directory:** docs/archive/
-
-## Instructions
-
 **Input:** `$ARGUMENTS` is optional. Can be a version number (e.g., `1.2.0`) or a bump type (`major`, `minor`, `patch`).
 
 Example: `/plot-release minor`
+
+## Setup
+
+Add a `## Plot Config` section to the adopting project's `CLAUDE.md`:
+
+    ## Plot Config
+    - **Project board:** <your-project-name> (#<number>)  <!-- optional, for `gh pr edit --add-project` -->
+    - **Branch prefixes:** idea/, feature/, bug/, docs/, infra/
+    - **Plan directory:** docs/plans/
+    - **Archive directory:** docs/archive/
 
 ### 1. Determine Version
 

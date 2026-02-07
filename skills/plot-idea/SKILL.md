@@ -1,22 +1,29 @@
+---
+name: plot-idea
+description: >-
+  Create a plan for review: idea branch, plan file, and draft PR.
+  Part of the Plot workflow. Use on /plot-idea.
+globs: []
+license: MIT
+---
+
 # Plot: Create Idea
 
 Create a plan for review: idea branch, plan file, and draft PR.
 
-## Setup
-
-Add a `## Plot Config` section to your project's `CLAUDE.md`:
-
-    ## Plot Config
-    - **Project board:** <your-project-name> (#<number>)  <!-- optional -->
-    - **Branch prefixes:** idea/, feature/, bug/, docs/, infra/
-    - **Plan directory:** docs/plans/
-    - **Archive directory:** docs/archive/
-
-## Instructions
-
 **Input:** `$ARGUMENTS` in the format `<slug>: <title description>`
 
 Example: `/plot-idea sse-backpressure: Handle SSE client disconnects gracefully`
+
+## Setup
+
+Add a `## Plot Config` section to the adopting project's `CLAUDE.md`:
+
+    ## Plot Config
+    - **Project board:** <your-project-name> (#<number>)  <!-- optional, for `gh pr edit --add-project` -->
+    - **Branch prefixes:** idea/, feature/, bug/, docs/, infra/
+    - **Plan directory:** docs/plans/
+    - **Archive directory:** docs/archive/
 
 ### 1. Parse Input
 

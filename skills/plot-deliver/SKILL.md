@@ -1,24 +1,31 @@
+---
+name: plot-deliver
+description: >-
+  Verify all implementation is done, then archive the plan.
+  Part of the Plot workflow. Use on /plot-deliver.
+globs: []
+license: MIT
+---
+
 # Plot: Deliver Plan
 
 Verify all implementation is done, then archive the plan.
 
 For docs/infra work, this is the end — live when merged. For features/bugs, `/plot-release` follows when you're ready to cut a versioned release.
 
-## Setup
-
-Add a `## Plot Config` section to your project's `CLAUDE.md`:
-
-    ## Plot Config
-    - **Project board:** <your-project-name> (#<number>)  <!-- optional -->
-    - **Branch prefixes:** idea/, feature/, bug/, docs/, infra/
-    - **Plan directory:** docs/plans/
-    - **Archive directory:** docs/archive/
-
-## Instructions
-
 **Input:** `$ARGUMENTS` is the `<slug>` of a plan on main.
 
 Example: `/plot-deliver sse-backpressure`
+
+## Setup
+
+Add a `## Plot Config` section to the adopting project's `CLAUDE.md`:
+
+    ## Plot Config
+    - **Project board:** <your-project-name> (#<number>)  <!-- optional, for `gh pr edit --add-project` -->
+    - **Branch prefixes:** idea/, feature/, bug/, docs/, infra/
+    - **Plan directory:** docs/plans/
+    - **Archive directory:** docs/archive/
 
 ### 1. Parse Input
 
@@ -51,7 +58,7 @@ Expected format after `/plot-approve`:
 Run the helper:
 
 ```bash
-.claude/skills/plot/scripts/plot-impl-status.sh <slug>
+../plot/scripts/plot-impl-status.sh <slug>
 ```
 
 Or for each PR number found in the Branches section:
