@@ -3,6 +3,10 @@ name: typescript-strict-patterns
 description: Use when writing or reviewing any TypeScript code. Covers tsconfig, ESLint strict config, Zod at boundaries, discriminated unions, branded types, and safe access patterns.
 globs: ["**/*.ts", "**/*.tsx"]
 license: MIT
+metadata:
+  author: eins78
+  repo: https://github.com/eins78/skills
+compatibility: Designed for Claude Code
 ---
 
 # TypeScript Strict Patterns

@@ -6,6 +6,10 @@ description: >-
   creates a changelog, commits changes, and summarizes next steps.
 globs: []
 license: MIT
+metadata:
+  author: eins78
+  repo: https://github.com/eins78/skills
+compatibility: Designed for Claude Code
 ---
 
 # Session Wrap-up
