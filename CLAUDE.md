@@ -75,6 +75,7 @@ Skills can reference other skills by name in their instructions. Claude loads bo
 - **Always use `/writing-skills` when planning, creating, editing, or reviewing skills**
 - Keep skills generic — no account-specific data, API keys, or personal identifiers
 - Skills should be self-contained: a single SKILL.md should cover a coherent topic
+- **Keep README.md in sync** — When adding, removing, or renaming skills, update the skills table in the root README.md
 - Continuous improvement: after using a skill, note gaps and propose concrete improvements
 - Installation: symlink from `~/.claude/skills/` to the skill directory
 
