@@ -4,6 +4,11 @@
   "description": "Personal Agent Skills collection",
   "author": "Max Albrecht",
   "license": "MIT",
+  "homepage": "https://github.com/eins78/skills#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eins78/skills.git"
+  },
   "scripts": {
     "test": "skills add . --list",
     "postinstall": "skills add . --global --skill '*' --agent claude-code -y < /dev/null"

@@ -6,7 +6,13 @@ Personal collection of [Agent Skills](https://agentskills.io/) for Claude Code a
 
 | Skill | Description |
 |-------|-------------|
-| [typescript-strict-patterns](skills/typescript-strict-patterns/) | TypeScript patterns — tsconfig, ESLint strict config, Zod at boundaries, discriminated unions, branded types, safe access |
+| [bye](skills/bye/) | Session wrap-up — reconstructs history, creates changelog, commits, summarizes next steps |
+| [plot](skills/plot/) | Git-native planning dispatcher with 4-phase workflow (idea → approve → deliver → release) |
+| [plot-idea](skills/plot-idea/) | Create a plan: idea branch, plan file, and draft PR |
+| [plot-approve](skills/plot-approve/) | Merge approved plan, fan out into implementation branches |
+| [plot-deliver](skills/plot-deliver/) | Verify implementation complete, archive the plan |
+| [plot-release](skills/plot-release/) | Create versioned release from delivered plans |
+| [typescript-strict-patterns](skills/typescript-strict-patterns/) | TypeScript patterns — tsconfig, ESLint strict, Zod, discriminated unions, branded types |
 
 ## Installation
 
