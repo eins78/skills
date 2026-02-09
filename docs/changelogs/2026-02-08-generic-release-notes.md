@@ -40,9 +40,19 @@ Work originated from a `/plot-idea changesets` session in qubert. The key design
 5. Archiving plans breaks links in implementation PR bodies
 6. `/plot-release` tries to own entire release process instead of participating
 
+## Review Fixes (2026-02-09)
+
+Code review identified 5 issues (2 critical, 1 high, 2 medium). All fixed in commit `c431e4e`:
+
+- **Step numbering (critical):** Merged plot-release steps 2/2b into single "2. Generate Release Notes" with clear if/else — no more ambiguous fall-through
+- **Inconsistent discovery (critical):** Standardized tooling discovery order across all 3 spokes: changesets → `CLAUDE.md`/`AGENTS.md` → `package.json` scripts
+- **Missing summary reminder (high):** Added conditional release note reminder to plot-approve step 8 summary template
+- **Stale PR description (high):** Trimmed PR description from 4 areas/17 files to actual scope (2 areas/5 files) — prior description included already-merged PR #3 work
+- **Stale README counts (medium):** Updated plot/README.md line counts and step counts to match current state
+
 ## Repository State
 
 - Branch: `feature/generic-release-notes`
-- Commits: `2949bba`, `1105589`
-- PR: #4 (draft) — "Generic release note discovery in plot skills"
-- +144/−15 lines across 4 files
+- Commits: `2949bba`, `1105589`, `db3b36d`, `c431e4e`
+- PR: #4 — "plot: generic release note discovery, manifesto"
+- +214/−38 lines across 5 files (including review fixes)
