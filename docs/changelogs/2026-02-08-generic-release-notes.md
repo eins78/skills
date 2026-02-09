@@ -50,9 +50,37 @@ Code review identified 5 issues (2 critical, 1 high, 2 medium). All fixed in com
 - **Stale PR description (high):** Trimmed PR description from 4 areas/17 files to actual scope (2 areas/5 files) — prior description included already-merged PR #3 work
 - **Stale README counts (medium):** Updated plot/README.md line counts and step counts to match current state
 
+## Conceptual Refinement (2026-02-09)
+
+Extensive discussion refined Plot's identity from "AI-assisted planning" to "git-native planning for any team." Two implementation commits:
+
+### Human-first framing, pacing model, RC verification loop (`4484593`)
+
+Rewrote MANIFESTO.md and aligned all skills:
+- **Opening/Core Belief:** Removed "AI-assisted" framing. Plans belong in git; AI is the designed-for sweet spot, not a requirement. Three roles: human decision-makers, AI/human facilitators, AI/human implementers. Decisions are always human.
+- **Principle 1:** Added transparency paragraph — plans-as-files are more visible than backlog items.
+- **Principle 3:** Added editorial note flagging the tension between skills (adaptive) and scripts (deterministic). Deferred full rewrite for later discussion.
+- **Lifecycle:** Expanded with RC verification loop — RC tags, generated checklists (`docs/releases/v<version>-checklist.md`), endgame testing, human sign-off.
+- **New Pacing section:** Three categories (automate ASAP, natural pause, human-paced) with examples. Meta-principle: don't over-complicate because AI doesn't feel friction.
+- **Making Decisions:** Added question 6: "Could a human with basic git knowledge execute this manually?"
+- **SKILL.md hub:** Pacing annotations on lifecycle Mermaid diagram, RC loop in Release subgraph, Transition Pacing column in phases table.
+- **Spoke skills:** Execution notes (manual/AI/script), `gh` CLI softened from requirement to implementation detail.
+- **plot-release:** Restructured into RC path (step 2A) and final release path (step 2B). RC cuts tag + generates verification checklist. Multiple RC iterations supported.
+- **README.md:** Added Roles section, updated "Commands not code" principle with tension note.
+
+### Small models welcome principle (`80ce013`)
+
+New principle 9: facilitator tasks must work with smaller models (Sonnet, Haiku). Reviewed all skills for small-model friendliness:
+- **plot-idea:** Explicit slug pattern `[a-z0-9-]+`, always ask for type (don't infer).
+- **plot-approve:** Explicit before/after parsing examples, loop variable clarity for approval metadata.
+- **plot-deliver:** Graceful degradation note on completeness check — smaller models skip diff review and ask user to confirm. Explicit if/elif/else chain for tooling discovery.
+- **plot-release:** Version fallback to user input when inference fails. Graceful degradation on cross-check — present notes and ask user to review.
+- **Dispatcher:** Explicit 7-day threshold for stale drafts (was "a long time").
+- **README.md:** Added principle 9 to design principles list.
+
 ## Repository State
 
 - Branch: `feature/generic-release-notes`
-- Commits: `2949bba`, `1105589`, `db3b36d`, `c431e4e`
-- PR: #4 — "plot: generic release note discovery, manifesto"
-- +214/−38 lines across 5 files (including review fixes)
+- Commits: `2949bba`, `1105589`, `db3b36d`, `c431e4e`, `4484593`, `80ce013`
+- PR: #4 — "plot: human-first framing, pacing model, small-model principle"
+- 8 files changed, +231/−74 lines (cumulative across all sessions)
