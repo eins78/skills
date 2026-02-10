@@ -83,4 +83,4 @@ New principle 9: facilitator tasks must work with smaller models (Sonnet, Haiku)
 - Branch: `feature/generic-release-notes`
 - Commits: `2949bba`, `1105589`, `db3b36d`, `c431e4e`, `4484593`, `80ce013`
 - PR: #4 — "plot: human-first framing, pacing model, small-model principle"
-- 8 files changed, +231/−74 lines (cumulative across all sessions)
+- 8 files changed, +390/−56 lines (cumulative across sessions listed above)
