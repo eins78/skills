@@ -42,13 +42,13 @@ Work originated from a `/plot-idea changesets` session in qubert. The key design
 
 ## Review Fixes (2026-02-09)
 
-Code review identified 5 issues (2 critical, 1 high, 2 medium). All fixed in commit `c431e4e`:
+Code review identified 5 issues, all fixed in commit `c431e4e`:
 
-- **Step numbering (critical):** Merged plot-release steps 2/2b into single "2. Generate Release Notes" with clear if/else — no more ambiguous fall-through
-- **Inconsistent discovery (critical):** Standardized tooling discovery order across all 3 spokes: changesets → `CLAUDE.md`/`AGENTS.md` → `package.json` scripts
-- **Missing summary reminder (high):** Added conditional release note reminder to plot-approve step 8 summary template
-- **Stale PR description (high):** Trimmed PR description from 4 areas/17 files to actual scope (2 areas/5 files) — prior description included already-merged PR #3 work
-- **Stale README counts (medium):** Updated plot/README.md line counts and step counts to match current state
+- **Step numbering:** Merged plot-release steps 2/2b into single "2. Generate Release Notes" with clear if/else — no more ambiguous fall-through
+- **Inconsistent discovery:** Standardized tooling discovery order across all 3 spokes: changesets → `CLAUDE.md`/`AGENTS.md` → `package.json` scripts
+- **Missing summary reminder:** Added conditional release note reminder to plot-approve step 8 summary template
+- **Stale PR description:** Trimmed PR description from 4 areas/17 files to actual scope (2 areas/5 files, PR description edit)
+- **Stale README counts:** Updated plot/README.md line counts and step counts to match current state
 
 ## Conceptual Refinement (2026-02-09)
 
