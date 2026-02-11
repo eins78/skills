@@ -21,7 +21,7 @@ The manifesto already distinguishes time-awareness from effort tracking (Princip
 
 ### Sprint Concept
 
-A sprint is a time-boxed coordination artifact that groups work by schedule. It contains:
+A sprint is a time-boxed coordination artifact that groups work by schedule. Sprint files live in `docs/sprints/YYYY-Www-<slug>.md`, where the ISO week prefix is derived from the start date. It contains:
 - A sprint goal (narrative purpose)
 - Start and end dates (time is the constraint)
 - Sub-items grouped by MoSCoW priority
@@ -35,17 +35,18 @@ Distinct from the plan lifecycle (Draft/Approved/Delivered/Released):
 
 | Phase | Meaning | Trigger | Pacing |
 |-------|---------|---------|--------|
-| Planning | Sprint being drafted, items selected | `/plot-sprint <slug>: <goal>` | ⏸ natural pause |
+| Planning | Sprint being drafted, items selected | `/plot-sprint <slug>: <goal>` (generates `YYYY-Www-` prefix) | ⏸ natural pause |
 | Committed | Team agreed on sprint contents | `/plot-sprint commit <slug>` | ⏳ human-paced |
 | Active | Sprint running, work in progress | `/plot-sprint start <slug>` | ⚡ automate ASAP |
 | Closed | Timebox ended, retro captured | `/plot-sprint close <slug>` | ⏳ human-paced |
 
 ### Sprint File Template
 
-Lives in `docs/sprints/<slug>.md`. Active and closed sprints are indexed via symlink directories:
+Lives in `docs/sprints/YYYY-Www-<slug>.md` (e.g., `docs/sprints/2026-W07-week-1.md`). Active sprints are indexed via a symlink directory:
 
 - `docs/sprints/active/<slug>.md` — symlinks to active sprints
-- `docs/sprints/closed/<slug>.md` — symlinks to closed sprints
+
+Closed sprints stay in place (Principle 8) and are identified by their Phase field. No `closed/` directory — closed sprints are not operationally queried.
 
 ```markdown
 # Sprint: <title>
@@ -102,7 +103,7 @@ Item format: `- [ ] [slug] description` (plan reference) or `- [ ] description` 
 
 5. **MoSCoW completeness on close** — The close step checks must-haves vs delivered. If must-haves are incomplete, the user chooses: close anyway, move to Deferred, or hold off.
 
-6. **Symlink directories** — `docs/sprints/active/` and `docs/sprints/closed/` mirror the plan pattern (`docs/plans/active/`, `docs/plans/delivered/`). No `docs/archive/` — closed sprints stay in place.
+6. **Single symlink directory (`active/`)** — rather than mirroring both plan directories. Closed sprints are not operationally queried — no spoke feeds from them the way `/plot-release` feeds from delivered plans. If `core.symlinks` is off (common on Windows), agents resolve symlinks by reading the file content as a relative path. No workflow step breaks.
 
 ### Approach
 
@@ -111,7 +112,7 @@ Item format: `- [ ] [slug] description` (plan reference) or `- [ ] description` 
 New skill directory. Handles full sprint lifecycle: create, commit, activate, close.
 
 Subcommands (argument-based routing):
-- `/plot-sprint <slug>: <goal>` — create sprint (Planning phase)
+- `/plot-sprint <slug>: <goal>` — create sprint (Planning phase; generates `YYYY-Www-` prefix from start date)
 - `/plot-sprint commit <slug>` — team agrees on contents (Planning → Committed)
 - `/plot-sprint start <slug>` — sprint begins (Committed → Active)
 - `/plot-sprint close <slug>` — timebox ended, retro (Active → Closed)
@@ -119,7 +120,7 @@ Subcommands (argument-based routing):
 
 Includes:
 - Sprint file template (MoSCoW tiers, dates, goal, retro)
-- `docs/sprints/active/` and `docs/sprints/closed/` symlink pattern
+- `docs/sprints/active/` symlink pattern (no `closed/` directory)
 - Direct-to-main commits (no PR)
 - MoSCoW completeness check on close (must-haves vs should/could/deferred)
 - Optional retrospective on close
@@ -134,8 +135,10 @@ Includes:
 
 All sprint operations are structural (Small or Mid). No Frontier needed.
 
+**Guardrail:** Sprint files must not contain `## Design` or `## Approach` sections. If the dispatcher detects these in a sprint file, warn: "This looks like a plan, not a sprint."
+
 **Pacing annotations:**
-- Creation (`/plot-sprint <slug>: <goal>`) — ⏸ natural pause (drafting)
+- Creation (`/plot-sprint <slug>: <goal>`) — ⏸ natural pause (drafting). On creation, run `ls docs/plans/active/ 2>/dev/null` to discover active (Draft/Approved) plans. Present list: "Found N active plans. Add any to this sprint?" User selects which to include (or none). Selected plans are added as `[slug]` items under the appropriate MoSCoW tier. Model tier: Small (file listing + user interaction).
 - Commitment (`/plot-sprint commit`) — ⏳ human-paced (team agreement)
 - Activation (`/plot-sprint start`) — ⚡ automate ASAP (mechanical transition)
 - Scope changes (direct edit) — ⏳ human-paced
@@ -149,7 +152,7 @@ Standard README per repo conventions: purpose, structure, tier (reusable/publish
 
 **New `## Sprints` section** (after Pacing, before "What Plot Is Not"):
 
-> Sprints are an optional temporal lens over plans. A sprint groups work by schedule — start date, end date, MoSCoW priorities. Plans track *what* to build; sprints track *when* to ship it. Sprint files live in `docs/sprints/`, managed by `/plot-sprint`, committed directly to main. Sprints are coordination artifacts, not implementation plans — Principle 2 does not apply to them.
+> Sprints are an optional temporal lens over plans. A sprint groups work by schedule — start date, end date, MoSCoW priorities. Plans track *what* to build; sprints track *when* to ship it. Sprint files live in `docs/sprints/`, managed by `/plot-sprint`, committed directly to main. Sprints do not spawn implementation branches, so Principle 2 (plans merge before implementation) does not apply.
 
 **Adjusted non-goals** (line 98, "Not a time or effort tracker" becomes):
 
@@ -163,7 +166,7 @@ Standard README per repo conventions: purpose, structure, tier (reusable/publish
 
 - **Plot Config:** add `Sprint directory: docs/sprints/` line
 - **Step 1 (Read State):** add `ls docs/sprints/active/ 2>/dev/null` to the parallel state-gathering block
-- **Step 2 (Detect Context, on main):** show active sprints with date range and must-have progress
+- **Step 2 (Detect Context, on main):** show active sprints with countdown and progress: `week-1 — "Ship auth improvements" | 3 days remaining | Must: 2/4 done`. Past end date: show "ended 2 days ago" factually — no warning tone, no nagging. Model tier: Small (date arithmetic). Only in dispatcher (`/plot`), not in spoke commands.
 - **Step 3 (Detect Issues):** warn on sprints past end date, multiple active sprints
 - **Phases section:** new sprint phases table alongside existing plan phases table
 - **Lifecycle section:** sprint lifecycle Mermaid diagram with pacing emoji
@@ -206,13 +209,32 @@ Standard README per repo conventions: purpose, structure, tier (reusable/publish
 | Plan ref `[slug]` doesn't exist yet | Valid during Planning/Committed. Warn during Active. Report as "not started" at closure |
 | Must-haves incomplete at closure | Warn + 3 options: close anyway / move to Deferred / hold off |
 | Multiple active sprints | Allowed but warned by dispatcher |
-| Same slug for sprint and plan | Disambiguated by file path (`docs/sprints/` vs `docs/plans/`); ask user if ambiguous |
+| Same slug for sprint and plan | Disambiguated by directory (`docs/sprints/` vs `docs/plans/`); ask user if ambiguous |
+| Sprint slug collision across weeks | Date prefix disambiguates (e.g., `2026-W07-week-1.md` vs `2026-W09-week-1.md`) |
 | Sprint with no end date | Valid during Planning. Required before commit transition |
 
-### Open Questions
+## Testing
 
-- [ ] Should sprint creation auto-discover unreleased plans and suggest adding them?
-- [ ] Should the dispatcher show a countdown ("3 days remaining") for active sprints?
+E2E test scenario following the existing `test-plot` pattern from `skills/plot/README.md`:
+
+```
+Test scenario: test-sprint
+1. /plot-sprint week-1: Ship authentication improvements
+2. Add items: 1 plan-backed [slug] reference + 2 lightweight tasks across MoSCoW tiers
+3. /plot-sprint commit week-1 — verify end date required
+4. /plot-sprint start week-1 — verify active/ symlink created
+5. Complete one must-have, leave one should-have incomplete
+6. /plot-sprint close week-1 — verify MoSCoW completeness check, deferred handling
+7. Verify retrospective prompting works
+8. Run /plot on main — verify sprint appears with countdown/progress
+9. Verify plan-backed [slug] cross-references resolve correctly
+10. Verify active/ symlink removed on close
+```
+
+Spoke awareness tests:
+- Run a plan lifecycle with `Sprint: week-1` field populated
+- Verify `/plot-approve` mentions sprint membership
+- Verify `/plot-deliver` shows sprint progress
 
 ## Branches
 
@@ -224,4 +246,4 @@ Standard README per repo conventions: purpose, structure, tier (reusable/publish
 - Key adaptation: original plan proposed Principle 9 "Time is a constraint, not a metric" — that slot is now taken by "Small models welcome". Sprints are an optional feature, not a founding belief, so they get a manifesto section instead of a principle.
 - Key adaptation: original plan extended existing commands (`/plot-idea`, `/plot-approve`, etc.) with sprint type detection. Current design uses a dedicated `/plot-sprint` command — sprints have a different lifecycle, directory, and no branch fan-out, so conditional paths in every spoke would add complexity without benefit.
 - Key adaptation: original plan had no model guidance or pacing. All sprint operations are Small or Mid tier; no Frontier needed. Pacing follows the same three categories as the rest of Plot.
-- Key adaptation: `docs/archive/` replaced with `docs/sprints/closed/` symlink directory, mirroring the plan convention of symlink-indexed views.
+- Key adaptation: `docs/archive/` replaced with `docs/sprints/active/` symlink directory, mirroring the plan convention. No `closed/` directory — closed sprints stay in place, identified by Phase field.
