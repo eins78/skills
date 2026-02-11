@@ -8,16 +8,16 @@ Plot replaces issue trackers with git-native planning: markdown plan files on br
 
 ## Structure
 
-| Path | Purpose | Size |
-|------|---------|------|
-| `plot/SKILL.md` | Hub: overview, lifecycle diagrams, setup, phases, conventions, guardrails, dispatcher | ~190 lines |
-| `plot-idea/SKILL.md` | Create plan: idea branch + plan file + draft PR (8 steps) | ~130 lines |
-| `plot-approve/SKILL.md` | Approve plan: merge PR, fan out impl branches/PRs (7 steps) | ~150 lines |
-| `plot-deliver/SKILL.md` | Deliver: verify all impl PRs merged, completeness check, archive (7 steps) | ~110 lines |
-| `plot-release/SKILL.md` | Release: version bump, changelog assembly, git tag (7 steps) | ~130 lines |
-| `plot/scripts/plot-pr-state.sh` | Helper: query plan PR state (draft/ready/merged/closed) | 41 lines |
-| `plot/scripts/plot-impl-status.sh` | Helper: query all impl PR states for a slug from plan on main | 63 lines |
-| `plot/changelog.md` | Complete evolution history across 5 development sessions | ~200 lines |
+| Path | Purpose |
+|------|---------|
+| `plot/SKILL.md` | Hub: overview, lifecycle diagrams, setup, phases, conventions, guardrails, dispatcher |
+| `plot-idea/SKILL.md` | Create plan: idea branch + plan file + draft PR (8 steps) |
+| `plot-approve/SKILL.md` | Approve plan: merge PR, fan out impl branches/PRs (8 steps) |
+| `plot-deliver/SKILL.md` | Deliver: verify all impl PRs merged, completeness check, deliver (8 steps) |
+| `plot-release/SKILL.md` | Release: verify readiness, cross-check notes, guide release (6 steps) |
+| `plot/scripts/plot-pr-state.sh` | Helper: query plan PR state (draft/ready/merged/closed) |
+| `plot/scripts/plot-impl-status.sh` | Helper: query all impl PR states for a slug from plan on main |
+| `plot/changelog.md` | Complete evolution history across 5 development sessions |
 
 ## Tier
 
@@ -25,7 +25,7 @@ Plot replaces issue trackers with git-native planning: markdown plan files on br
 
 ## Core Design Principles
 
-1. **Commands not code** — Plot commands are Claude Code skill markdown (natural language instructions), not shell scripts. Claude interprets and adapts to edge cases rather than failing on unexpected state.
+1. **Commands not code** — Plot's workflow commands are skill markdown that an AI agent interprets and adapts to edge cases. Separate helper scripts handle mechanical data gathering (structured output any model can parse). Skills interpret and adapt; scripts collect and report.
 
 2. **Plans merge before implementation** — The plan file lands on main first, so all implementation branches reference a stable document. This was the key design insight that solved the "can't merge until fully implemented" problem.
 
@@ -35,11 +35,23 @@ Plot replaces issue trackers with git-native planning: markdown plan files on br
 
 5. **Approval metadata on branches** — Each implementation branch carries the plan file with approval context (timestamp, approver, assignee), providing both a meaningful first commit and traceability.
 
-6. **Dated archives** — `YYYY-MM-DD-slug.md` sorts chronologically and answers "when did this ship?" at a glance.
+6. **Plans stay in place** — `YYYY-MM-DD-slug.md` files never move. Symlink dirs (`active/`, `delivered/`) provide filtered views. Links never break.
 
 7. **Smart defaults** — Commands discover context (open PRs, active plans) rather than demanding exact input. Missing arguments trigger helpful suggestions, not errors.
 
 8. **Phase guardrails** — Each command checks the current phase before acting. Cannot approve an unreviewed draft. Cannot deliver with open PRs. Cannot release undelivered work.
+
+9. **Small models welcome** — Three model tiers: small (Haiku) for mechanical steps, mid (Sonnet) for heuristic reasoning, frontier (Opus) for deep judgment. Each skill has a Model Guidance table mapping steps to tiers. Steps degrade gracefully — smaller models ask humans where larger models decide autonomously.
+
+## Roles
+
+Plot recognizes three roles in the development workflow:
+
+- **Decision maker** — Reviews plans, approves work, decides when to release, signs off on verification. **Always human.** Agents never make decisions — they surface information and suggest, humans decide.
+- **Process facilitator** — Reads git state, suggests next actions, provides summaries. This is the `/plot` dispatcher role. Can be a human running scripts or an AI interpreting skills.
+- **Implementer** — Writes code, creates PRs, does the actual work. Human developers, AI coding agents, or both.
+
+Facilitation and implementation can be human or AI. Decisions are always human.
 
 ## Testing
 
