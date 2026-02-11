@@ -238,7 +238,7 @@ Spoke awareness tests:
 
 ## Branches
 
-- `feature/plot-sprint-support` — Implement sprint support: new skill, manifesto additions, spoke modifications
+- `feature/plot-sprint-support` — Implement sprint support: new skill, manifesto additions, spoke modifications → #7
 
 ## Notes
 
