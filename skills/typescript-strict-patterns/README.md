@@ -4,7 +4,15 @@ Development notes for the TypeScript strict patterns skill.
 
 ## Purpose
 
-Covers tsconfig setup (`@total-typescript/tsconfig`), ESLint strict config, Zod at boundaries, discriminated unions, branded types, template literal types, and safe access patterns.
+Everyday TypeScript coding patterns: discriminated unions, branded types, Zod at boundaries, const arrays over enums, and safe access patterns. Project setup (tsconfig, ESLint, ts-reset) lives in reference files loaded on demand.
+
+## Structure
+
+| File | Content |
+|---|---|
+| `SKILL.md` | Everyday coding patterns (always loaded) |
+| `project-setup.md` | tsconfig, ts-reset, type-fest guidance (loaded on demand) |
+| `eslint.config.mjs` | Reference ESLint flat config (loaded on demand) |
 
 ## Tier
 
