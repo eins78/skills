@@ -9,4 +9,4 @@
   - Adding/editing skills guidelines (generic content, continuous improvement, symlink installation)
   - Rule to use `/writing-skills` skill when planning, creating, editing, or reviewing skills
   - Commit message conventions derived from existing history
-- **docs/changelogs/** — Changelog directory for session documentation
+- **docs/sessionlogs/** — Sessionlog directory for session documentation (originally `docs/changelogs/`, renamed 2026-02-14)

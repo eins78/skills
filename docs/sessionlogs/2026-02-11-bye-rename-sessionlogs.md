@@ -24,8 +24,8 @@ Renamed "changelogs" to "sessionlogs" throughout the bye skill to better reflect
 - Project rules (CLAUDE.md / AGENTS.md) can override the default directory — no need for a separate config mechanism
 
 ## Next Steps
-- [ ] Merge PR #6
-- [ ] Rename `docs/changelogs/` → `docs/sessionlogs/` in this repo (after merge)
+- [x] Merge PR #6
+- [x] Rename `docs/changelogs/` → `docs/sessionlogs/` in this repo (done 2026-02-14, commit 79e6aec)
 
 ## Repository State
 - Committed: 845a1ef - bye: Rename changelogs to sessionlogs
