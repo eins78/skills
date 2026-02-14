@@ -4,8 +4,14 @@
 
 ## Status
 
-- **Phase:** Draft
+- **Phase:** Approved
 - **Type:** feature
+
+## Approval
+
+- **Approved:** 2026-02-11T21:04:30Z
+- **Approved by:** eins78
+- **Assignee:** eins78
 
 ## Changelog
 

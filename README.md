@@ -12,6 +12,7 @@ Personal collection of [Agent Skills](https://agentskills.io/) for Claude Code a
 | [plot-approve](skills/plot-approve/) | Merge approved plan, fan out into implementation branches |
 | [plot-deliver](skills/plot-deliver/) | Verify implementation complete, archive the plan |
 | [plot-release](skills/plot-release/) | Create versioned release from delivered plans |
+| [plot-sprint](skills/plot-sprint/) | Time-boxed sprint coordination with MoSCoW prioritization |
 | [typescript-strict-patterns](skills/typescript-strict-patterns/) | TypeScript patterns — tsconfig, ESLint strict, Zod, discriminated unions, branded types |
 
 ## Installation
