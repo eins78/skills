@@ -20,10 +20,12 @@ compatibility: Designed for Claude Code and Cursor
 Model variants as discriminated unions — never bags of optional properties:
 
 ```typescript
+// GOOD — each variant carries exactly its data
 type Result =
   | { status: "ok"; data: string }
   | { status: "error"; message: string };
 
+// Exhaustive check helper — will fail to compile if a variant is missed
 function assertNever(x: never): never {
   throw new Error(`Unexpected: ${JSON.stringify(x)}`);
 }
@@ -32,7 +34,7 @@ function handle(r: Result) {
   switch (r.status) {
     case "ok": return r.data;
     case "error": return r.message;
-    default: assertNever(r);
+    default: assertNever(r); // compile error if a case is missing
   }
 }
 ```
@@ -41,7 +43,7 @@ Use `satisfies never` or the `assertNever` helper at the `default:` branch. ESLi
 
 ## Branded Types
 
-Prevent accidental interchange of structurally identical types:
+Prevent accidental interchange of structurally identical types with a brand:
 
 ```typescript
 type Brand<T, B extends string> = T & { readonly __brand: B };
@@ -53,10 +55,10 @@ function getUser(id: UserId) { /* ... */ }
 
 const uid = "abc" as UserId; // cast once at the boundary
 getUser(uid);    // OK
-getUser("abc");  // compile error
+getUser("abc");  // compile error — plain string is not UserId
 ```
 
-Brand at system boundaries (API response parsing, DB reads). Internal code carries the brand without further casts.
+Brand at system boundaries (API response parsing, DB reads). Internal code then carries the brand without further casts.
 
 ## Template Literal Types
 
@@ -76,7 +78,7 @@ Useful for config keys, route paths, and event names where runtime validation is
 
 ## No `!` or `as` in Production Code
 
-Non-null assertions (`!`) and type assertions (`as`) hide type errors. Banned in production code, allowed in tests (enforced by ESLint config).
+Non-null assertions (`!`) and type assertions (`as`) are banned in production code. They hide type errors. Allowed in test files where the tradeoff is acceptable (enforced by ESLint config).
 
 Replacements:
 - **Destructuring with defaults** instead of `obj.prop!`: `const { name = '' } = config;`
@@ -106,8 +108,8 @@ export const sessionMetaSchema = z.object({
 export type SessionMeta = z.infer<typeof sessionMetaSchema>;
 ```
 
-- `safeParse()` for data that may be corrupt (disk reads, JSONL) — skip gracefully
-- `parse()` for startup validation (env vars) where failure is fatal
+- Use `safeParse()` for data that may be corrupt (disk reads, JSONL) — skip gracefully
+- Use `parse()` for startup validation (env vars) where failure is fatal
 - Skip Zod for internal function arguments between trusted modules and for SDK-owned types
 
 ## Safe Indexed Access
