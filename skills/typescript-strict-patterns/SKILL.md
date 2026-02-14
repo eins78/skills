@@ -117,3 +117,7 @@ With `noUncheckedIndexedAccess`, bracket access returns `T | undefined`. Always 
 - Use `.at(index)` — clearer intent than bracket access
 - Handle with `if (item !== undefined)` or `??`
 - Prefer `.find()`, `.filter()`, or destructuring over index access
+
+## Type Helpers (type-fest as Inspiration)
+
+Use [type-fest](https://github.com/sindresorhus/type-fest) as a **reference catalog** when strict patterns make code verbose. Browse its source for solutions like `SetRequired`, `Simplify`, `JsonValue`. Copy the single type definition you need into `src/types/` with attribution. Don't add the full package as a dependency — keep the dependency graph small.

@@ -28,7 +28,3 @@ pnpm add -D eslint typescript-eslint
 ## ts-reset
 
 Install `@total-typescript/ts-reset` in application code (not libraries) to fix built-in return types (`.filter(Boolean)`, `.json()`, `Map.get`, etc.). Import once in a global `.d.ts`.
-
-## Type Helpers (type-fest)
-
-Use [type-fest](https://github.com/sindresorhus/type-fest) as a **reference catalog** when strict patterns make code verbose. Browse its source for solutions like `SetRequired`, `Simplify`, `JsonValue`. Copy the single type definition you need into `src/types/` with attribution. Don't add the full package as a dependency — keep the dependency graph small.
