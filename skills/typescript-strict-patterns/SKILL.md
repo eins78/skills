@@ -1,6 +1,6 @@
 ---
 name: typescript-strict-patterns
-description: Use when writing or reviewing any TypeScript code. Covers tsconfig, ESLint strict config, Zod at boundaries, discriminated unions, branded types, and safe access patterns.
+description: Use when writing or reviewing any TypeScript code. Covers discriminated unions, branded types, Zod at boundaries, const arrays over enums, and safe access patterns.
 globs: ["**/*.ts", "**/*.tsx"]
 license: MIT
 metadata:
@@ -12,72 +12,18 @@ compatibility: Designed for Claude Code and Cursor
 
 # TypeScript Strict Patterns
 
-## tsconfig: Use @total-typescript/tsconfig
-
-Always extend `@total-typescript/tsconfig`. Pick a base by: **build tool** (`tsc/` or `bundler/`), **runtime** (`dom/` or `no-dom/`), **project type** (`app`, `library`, `library-monorepo`).
-
-```json
-{
-  "extends": "@total-typescript/tsconfig/tsc/no-dom/app",
-  "compilerOptions": { "outDir": "./dist", "rootDir": "./src" }
-}
-```
-
-The base enables `strict`, `noUncheckedIndexedAccess`, `noImplicitOverride`, `verbatimModuleSyntax`, `isolatedModules`, and correct `module`/`lib` for the target. Read the source bases before adding overrides.
-
-## ESLint Baseline
-
-Projects using this skill expect the following flat config (or equivalent rules). Lint-enforceable rules live here, not in prose.
-
-```javascript
-// eslint.config.mjs — baseline expected by typescript-strict-patterns
-import eslint from "@eslint/js";
-import tseslint from "typescript-eslint";
-
-export default tseslint.config(
-  eslint.configs.recommended,
-  tseslint.configs.strictTypeChecked,
-  {
-    languageOptions: {
-      parserOptions: { projectService: true },
-    },
-    rules: {
-      "@typescript-eslint/switch-exhaustiveness-check": "error",
-      "@typescript-eslint/no-unnecessary-condition": "error",
-      "no-restricted-syntax": [
-        "error",
-        { selector: "TSEnumDeclaration", message: "Use const arrays or z.enum()" },
-      ],
-    },
-  },
-  {
-    files: ["**/*.test.ts", "**/*.spec.ts"],
-    rules: {
-      "@typescript-eslint/no-non-null-assertion": "off",
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-unsafe-assignment": "off",
-    },
-  },
-);
-```
-
-Key rules enforced: no `enum` (use const arrays or `z.enum()`), exhaustive `switch`, no `!`/`as` in production (relaxed in tests).
-
-## ts-reset
-
-Install `@total-typescript/ts-reset` in application code (not libraries) to fix built-in return types (`.filter(Boolean)`, `.json()`, `Map.get`, etc.). Import once in a global `.d.ts`.
+> **Project setup** (tsconfig, ts-reset, type-fest): see [`project-setup.md`](./project-setup.md)
+> **ESLint baseline**: see [`eslint.config.mjs`](./eslint.config.mjs)
 
 ## Discriminated Unions + Exhaustive Checking
 
 Model variants as discriminated unions — never bags of optional properties:
 
 ```typescript
-// GOOD — each variant carries exactly its data
 type Result =
   | { status: "ok"; data: string }
   | { status: "error"; message: string };
 
-// Exhaustive check helper — will fail to compile if a variant is missed
 function assertNever(x: never): never {
   throw new Error(`Unexpected: ${JSON.stringify(x)}`);
 }
@@ -86,7 +32,7 @@ function handle(r: Result) {
   switch (r.status) {
     case "ok": return r.data;
     case "error": return r.message;
-    default: assertNever(r); // compile error if a case is missing
+    default: assertNever(r);
   }
 }
 ```
@@ -95,7 +41,7 @@ Use `satisfies never` or the `assertNever` helper at the `default:` branch. ESLi
 
 ## Branded Types
 
-Prevent accidental interchange of structurally identical types with a brand:
+Prevent accidental interchange of structurally identical types:
 
 ```typescript
 type Brand<T, B extends string> = T & { readonly __brand: B };
@@ -107,10 +53,10 @@ function getUser(id: UserId) { /* ... */ }
 
 const uid = "abc" as UserId; // cast once at the boundary
 getUser(uid);    // OK
-getUser("abc");  // compile error — plain string is not UserId
+getUser("abc");  // compile error
 ```
 
-Brand at system boundaries (API response parsing, DB reads). Internal code then carries the brand without further casts.
+Brand at system boundaries (API response parsing, DB reads). Internal code carries the brand without further casts.
 
 ## Template Literal Types
 
@@ -130,7 +76,7 @@ Useful for config keys, route paths, and event names where runtime validation is
 
 ## No `!` or `as` in Production Code
 
-Non-null assertions (`!`) and type assertions (`as`) are banned in production code. They hide type errors. Allowed in test files where the tradeoff is acceptable (enforced by ESLint config above).
+Non-null assertions (`!`) and type assertions (`as`) hide type errors. Banned in production code, allowed in tests (enforced by ESLint config).
 
 Replacements:
 - **Destructuring with defaults** instead of `obj.prop!`: `const { name = '' } = config;`
@@ -160,8 +106,8 @@ export const sessionMetaSchema = z.object({
 export type SessionMeta = z.infer<typeof sessionMetaSchema>;
 ```
 
-- Use `safeParse()` for data that may be corrupt (disk reads, JSONL) — skip gracefully
-- Use `parse()` for startup validation (env vars) where failure is fatal
+- `safeParse()` for data that may be corrupt (disk reads, JSONL) — skip gracefully
+- `parse()` for startup validation (env vars) where failure is fatal
 - Skip Zod for internal function arguments between trusted modules and for SDK-owned types
 
 ## Safe Indexed Access
@@ -171,7 +117,3 @@ With `noUncheckedIndexedAccess`, bracket access returns `T | undefined`. Always 
 - Use `.at(index)` — clearer intent than bracket access
 - Handle with `if (item !== undefined)` or `??`
 - Prefer `.find()`, `.filter()`, or destructuring over index access
-
-## Type Helpers (type-fest as Inspiration)
-
-Use [type-fest](https://github.com/sindresorhus/type-fest) as a **reference catalog** when strict patterns make code verbose. Browse its source for solutions like `SetRequired`, `Simplify`, `JsonValue`. Copy the single type definition you need into `src/types/` with attribution. Don't add the full package as a dependency — keep the dependency graph small.
