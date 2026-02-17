@@ -2,8 +2,6 @@
 
 **Date:** 2026-02-17
 **Source:** Claude Code
-**Session:** Reconstructed from 24 compaction(s) · ~2k input / ~7k output tokens
-
 ## Summary
 Added optional session reconstruction stats (compaction count and token usage) to the bye skill's final summary and sessionlog templates. Data is collected during the existing subagent pass over the JSONL session file at zero extra cost.
 
