@@ -28,7 +28,10 @@ prompt: |
   4. If compaction found, extract the embedded conversation:
      - Format is "User: [text]" and "Agent: [text]" separated by "---"
      - List what work was discussed
-  5. Count compactions: number of times "Context: This summary will be shown" appears
+  5. Count compactions: in `type=user` entries, count `content` blocks where
+     `type` is `"text"` (NOT `"tool_result"`) AND the text contains
+     "Context: This summary will be shown". Ignore occurrences inside
+     tool_result blocks — those are file reads, not compaction events.
   6. Sum token usage from all assistant messages: each has `message.usage` with
      `input_tokens` and `output_tokens` fields. Sum both across all entries.
   7. Return:
