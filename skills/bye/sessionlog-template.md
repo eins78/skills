@@ -21,6 +21,8 @@ Use whichever exists first. If none exists, skip sessionlog creation.
 
 **Date:** YYYY-MM-DD
 **Source:** Claude Code
+**Session:** Reconstructed from N compaction(s) · ~Xk input / ~Yk output tokens
+             ↑ only include if compactions > 0
 
 ## Summary
 [1-2 sentences: what was accomplished]
