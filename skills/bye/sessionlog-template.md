@@ -2,6 +2,27 @@
 
 Format and logic for creating or updating sessionlogs. Called from [SKILL.md](./SKILL.md) step 4.
 
+## When to Skip the Sessionlog
+
+A sessionlog should only be created when it adds context not already captured in the session's artifacts (commits, plan files, code, docs). Git commits already record *what* changed, *when*, and basic *why* via commit messages. If all useful information is already preserved, skip the sessionlog.
+
+**Skip when:**
+- Session produced a plan file and nothing else worth documenting
+- Only Q&A happened with no file changes or decisions to preserve
+- All changes are straightforward and fully explained by commit messages
+
+**Create when:**
+- Decisions were made that aren't obvious from the code alone
+- Multiple approaches were tried and the rationale for the final choice matters
+- A feature or refactor involved context, trade-offs, or history worth preserving
+- A single file was added but research, intent, or sources informed it
+- Plan execution diverged from the plan or was only partially completed
+
+**Calibration examples:**
+- Session created `~/.claude/plans/refactor-auth.md` and nothing else → **Skip** (plan file is the artifact)
+- Session added auth feature across 8 files, tried two approaches, chose one → **Create** (decisions and alternatives not in the code)
+- Session added `docs/adr/003-caching.md`, informed by research and rejected options → **Create** (the *why* isn't fully in the doc)
+
 ## File Naming
 
 `{sessionlog-dir}/YYYY-MM-DD-topic-slug.md` — use today's date via `date +%Y-%m-%d`.
@@ -83,6 +104,6 @@ When unsure, ask: "Should I create a new sessionlog or update `sessionlogs/[file
 ```
 
 **Plan creation session:**
-- The plan file IS the deliverable
-- Sessionlog documents the planning work, not implementation
-- Reference the plan file location
+- The plan file IS the deliverable — **usually no sessionlog needed**
+- Only create a sessionlog if significant context exists beyond the plan (e.g., research, rejected approaches, stakeholder input)
+- If skipping, reference the plan file path in the final summary instead
