@@ -3,7 +3,8 @@ name: bye
 description: >-
   Use when the user says /bye, "wrap up", "end session", or similar.
   Reconstructs full session history including compacted context,
-  creates a sessionlog, commits changes, and summarizes next steps.
+  creates a sessionlog (if project has a sessionlog directory),
+  commits changes, and summarizes next steps.
 globs: []
 license: MIT
 metadata:
@@ -46,7 +47,7 @@ After restoring history, classify the session:
 1. **Determine scope** — everything between last /bye (or session start) and now. Verify each item was discussed in THIS conversation.
 2. **Assess work** — files created, files modified, decisions made, research done, tasks completed, tasks remaining.
 3. **Trivial session?** If just Q&A with no file changes, ask: "Skip sessionlog?"
-4. **Create or update sessionlog** — see [sessionlog-template.md](./sessionlog-template.md) for format, naming, and create-vs-update logic.
+4. **Sessionlog** — check if a sessionlog directory exists (see [sessionlog-template.md](./sessionlog-template.md)). If no directory found, **skip this step entirely** — do NOT create directories. If found, create or update the sessionlog per the template.
 5. **Update project status** — if work relates to `projects/*/`, update its `status.md`.
 6. **Handle git** — see git decision table below.
 7. **Print final summary** — see template below.
