@@ -26,16 +26,29 @@ ls -d docs/sessionlogs/ sessionlogs/ docs/changelogs/ changelogs/ 2>/dev/null
 
 `{sessionlog-dir}/YYYY-MM-DD-topic-slug.md` — use today's date via `date +%Y-%m-%d`.
 
-## Step 3: Create, Update, or Skip
+## Step 3: Skip, Create, or Update
 
-**Skip** — no sessionlog directory found (Step 1). Do not proceed.
+**Skip** if any of these apply:
+- No sessionlog directory found (Step 1) — do not proceed
+- Session produced a plan file and nothing else worth documenting
+- Only Q&A happened with no file changes or decisions to preserve
+- All changes are straightforward and fully explained by commit messages
 
-**Create new** — directory exists, but no sessionlog exists for this work.
+**Create** when the session produced context not captured in committed artifacts:
+- Decisions that aren't obvious from the code alone
+- Multiple approaches tried; rationale for the final choice matters
+- Research, intent, or sources that informed the work
+- Plan execution that diverged from the plan or was only partially completed
 
-**Update existing** — a sessionlog was created earlier in this session (e.g., before compaction) and more work was done after. Steps:
+**Update existing** when a sessionlog was created earlier in this session (e.g., before compaction) and more work was done after:
 1. Read the existing sessionlog
 2. Append new accomplishments/changes
 3. Update "Next Steps" and "Repository State"
+
+**Calibration examples:**
+- Session created `~/.claude/plans/refactor-auth.md` and nothing else → **Skip** (plan file is the artifact)
+- Session added auth feature across 8 files, tried two approaches, chose one → **Create** (decisions and alternatives not in the code)
+- Session added `docs/adr/003-caching.md`, informed by research and rejected options → **Create** (the *why* isn't fully in the doc)
 
 When unsure, ask: "Should I create a new sessionlog or update `sessionlogs/[file].md`?"
 
@@ -94,6 +107,6 @@ ls docs/sessionlogs/ sessionlogs/ docs/changelogs/ changelogs/ 2>/dev/null | gre
 ```
 
 **Plan creation session:**
-- The plan file IS the deliverable
-- Sessionlog documents the planning work, not implementation
-- Reference the plan file location
+- The plan file IS the deliverable — **usually no sessionlog needed**
+- Only create a sessionlog if significant context exists beyond the plan (e.g., research, rejected approaches, stakeholder input)
+- If skipping, reference the plan file path in the final summary instead
