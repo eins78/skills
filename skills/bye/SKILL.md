@@ -93,6 +93,9 @@ Push if remote tracking exists.
 **Pending:**
 - [ ] [task 1]
 
+**Session:** Reconstructed from N compaction(s) · ~Xk input / ~Yk output tokens
+           ↑ only include if compactions > 0; round tokens to nearest k
+
 **Sessionlog:** `sessionlogs/[file].md`
 
 Ready to clear context.

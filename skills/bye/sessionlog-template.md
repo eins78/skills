@@ -59,6 +59,8 @@ When unsure, ask: "Should I create a new sessionlog or update `sessionlogs/[file
 
 **Date:** YYYY-MM-DD
 **Source:** Claude Code
+**Session:** Reconstructed from N compaction(s) · ~Xk input / ~Yk output tokens
+             ↑ only include if compactions > 0
 
 ## Summary
 [1-2 sentences: what was accomplished]
