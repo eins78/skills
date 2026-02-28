@@ -14,7 +14,7 @@ A retrospective on the Plot skills system based on real development and usage da
 | 2026-02-11 | Sprint support plan: designed, refined with 8 improvements, approved | PR #5 (plan), PR #7 (impl draft) |
 | 2026-02-14 | Sprint review: 3 parallel explore agents found 9 issues, 6 code fixes merged | PR #7 merged |
 | 2026-02-28 | ralph-sprint.sh developed (14 commits), imported with 7 bug fixes | Skills repo commits |
-| 2026-02-28 | Live sprint run: `ralph-sprint.sh 100 steal-features` against qubert | 8+ iterations, ~80 minutes, PRs #33-41 |
+| 2026-02-28 | Live sprint run: `ralph-sprint.sh` against qubert (4 runs) | 18 iterations, PRs #33-40 open (review-clean), #41 merged |
 
 ---
 
@@ -28,17 +28,18 @@ This is the single strongest design decision in Plot. The system has other flaws
 
 ### 2. MoSCoW prioritization in sprints
 
-The steal-features sprint had clear tiers: 4 Must Have (MCP support, channel memory, file uploads, rate limits), 2 Should Have (channel pairing, browser automation), and 2 Could Have items. All Must Have and Should Have items were completed. The MoSCoW structure gave ralph-sprint a natural priority order -- work on must-haves first, then should-haves, then could-haves. This is exactly what happened in practice, and the sprint closed with 100% completion across all tiers.
+The steal-features sprint had clear tiers: 4 Must Have (MCP support, channel memory, file uploads, rate limits), 2 Should Have (channel pairing, browser automation), 2 Unblocked (SDK upgrade, seatbelt sandbox, worktree isolation), and 2 Could Have items. All items across all tiers were completed -- 100% completion. The MoSCoW structure gave ralph-sprint a natural priority order -- work on must-haves first, then should-haves, then could-haves. The sprint also unblocked and completed items that were initially waiting on the SDK upgrade, demonstrating the system's ability to handle mid-sprint dependency resolution.
 
 ### 3. The self-review loop
 
-The design where one iteration posts review comments and the next iteration fixes them worked remarkably well. The pattern was visible across all 8 iterations:
+The design where one iteration posts review comments and the next iteration fixes them worked remarkably well. The pattern was visible across all 18 iterations in 4 runs:
 
-- Iteration 2: reviewed PR #36, posted 7 findings
-- Iteration 3: fixed those 7 comments on #36, then reviewed #37
-- Iteration 5: resolved 27 threads across PRs #34-37, then reviewed 3 more PRs
+- Run 2, iter 3: fixed 6 review comments on PR #33, added 8 unit tests
+- Run 2, iter 4: resolved all threads on #33, then reviewed #34 with 3 parallel agents
+- Run 3, iter 8: fixed 7 findings on PR #36, reviewed #37, posted 7 findings
+- Run 4, iter 13: reviewed PR #40 with 4 parallel agents, posted 10 inline comments + 6 test gaps
 
-The review quality was meaningful -- iteration 8 used 4 specialized sub-agents and found 10 inline issues plus 6 test gaps. These are not rubber-stamp reviews.
+The review quality was meaningful -- 53+ review comments addressed across all 8 PRs, with 31 unit tests added across 4 test files. The specialized multi-agent review approach was used repeatedly and produced real findings every time. These are not rubber-stamp reviews.
 
 ### 4. Worktree isolation per sprint
 
@@ -68,7 +69,7 @@ Every skill includes a table mapping steps to model tiers (Small/Mid/Frontier). 
 
 ### 9. Overall velocity
 
-8 features plus an SDK upgrade, completed in one automated sprint of ~80 minutes. PRs #33-41 created, SDK upgrade merged, others in review. The system produced real, reviewable work at a pace that would be impossible without the structure Plot provides. The structure did not slow things down -- it channeled effort effectively.
+8 features plus an SDK upgrade, completed across 18 automated iterations in 4 runs. PRs #33-40 created with all review threads resolved (53+ comments addressed, 31 unit tests added), SDK upgrade (#41) merged to main. All 8 feature PRs are review-clean and awaiting human merge review. The system produced real, reviewable work at a pace that would be impossible without the structure Plot provides. The structure did not slow things down -- it channeled effort effectively.
 
 ---
 
@@ -216,9 +217,9 @@ MoSCoW prioritization worked exactly as intended. The sprint lifecycle (Planning
 
 Deductions: No cross-sprint item tracking. The sprint file format does not clearly indicate which items are plan-backed (`[slug]`) versus lightweight tasks, making automated progress tracking harder. The close subcommand's retrospective prompting was not tested in the live run (the sprint was still active at observation time).
 
-### Automation (ralph-sprint): B-
+### Automation (ralph-sprint): B
 
-The script achieved something remarkable: 8+ iterations of autonomous fix-build-review cycles in 80 minutes, producing real, mergeable work. The rebase step, ntfy notifications, and wrap-up session are well-designed. The simplification from 3 signals to 2 was a critical fix that kept the run going.
+The script achieved something remarkable: 18 iterations across 4 runs of autonomous fix-build-review cycles, producing real, mergeable work -- all 8 PRs review-clean with 53+ comments addressed and 31 unit tests added. The rebase step, ntfy notifications, and wrap-up session are well-designed. The simplification from 3 signals to 2 was a critical fix that kept the run going. The 4-run structure (implementation, first review cycle, mid review cycle, final review cycle + completion) emerged organically and showed the script handles restart/resume gracefully.
 
 Deductions: No Ctrl+C propagation. No iteration timeout. No cross-iteration state tracking (reviewed PRs, sprint progress). The command substitution approach for JSON capture creates operational fragility. Seven bug fixes were needed during the first live run -- the script was shipped undertested. The plan-only PR re-review problem and the lack of PR type awareness are automation-specific gaps that would not matter in manual usage.
 
@@ -241,5 +242,5 @@ The most important next steps are: (1) add cross-iteration state tracking to ral
 | Review | B | Self-review loop produces real findings | No "already reviewed" tracking; plan-only PR confusion |
 | Delivery | B+ | Subagent delegation model; clean symlink flow | Completeness verification is pure LLM judgment |
 | Sprint Mgmt | B+ | MoSCoW worked perfectly; clean lifecycle | No cross-sprint tracking; close/retro untested |
-| Automation | B- | 8 features in 80 min; rebase step; signal fix | No timeout; no Ctrl+C; no cross-iteration state |
+| Automation | B | 18 iters / 4 runs; 53+ comments fixed; 31 tests added | No timeout; no Ctrl+C; no cross-iteration state |
 | **Overall** | **B+** | **Plan-first architecture; git-native; real velocity** | **Automation layer needs hardening** |

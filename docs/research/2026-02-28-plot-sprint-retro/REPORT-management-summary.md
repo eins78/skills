@@ -8,9 +8,9 @@
 
 ## Executive Summary
 
-Plot is a git-native planning system with 6 skills that was battle-tested in a real sprint ("steal-features" on the qubert project). The sprint produced **8 features + an SDK upgrade in ~80 minutes** of automated execution via a new `ralph-sprint.sh` loop script. The core architecture — plans merge before implementation, git as source of truth, hub-and-spoke skill composition — proved sound under real load. The automation layer needs hardening but validated a genuinely useful execution model.
+Plot is a git-native planning system with 6 skills that was battle-tested in a real sprint ("steal-features" on the qubert project). The sprint produced **8 features + an SDK upgrade across 18 automated iterations in 4 runs** via a new `ralph-sprint.sh` loop script. All 8 feature PRs (#33-40) are now review-clean (53+ comments addressed, 31 unit tests added) and awaiting human merge review. The core architecture — plans merge before implementation, git as source of truth, hub-and-spoke skill composition — proved sound under real load. The automation layer needs hardening but validated a genuinely useful execution model.
 
-**Overall grade: B+**. The lifecycle skills are mature (A-/A), the sprint management works (B+), but the automation layer (B-) and the scrum master pattern (D+ production readiness) need investment.
+**Overall grade: B+**. The lifecycle skills are mature (A-/A), the sprint management works (B+), but the automation layer (B) and the scrum master pattern (D+ production readiness) need investment.
 
 ---
 
@@ -20,13 +20,13 @@ Plot is a git-native planning system with 6 skills that was battle-tested in a r
 
 1. **Plan-first architecture** — All 8 plan files landed on main before implementation. Every impl branch referenced a stable, approved document. This is the single strongest design decision.
 
-2. **MoSCoW prioritization** — Must Have (4), Should Have (2), Could Have (2) all completed. The priority structure gave the automation loop a natural work order without human intervention.
+2. **MoSCoW prioritization** — Must Have (4), Should Have (2), Unblocked (3), Could Have (2) all completed — 100% across all tiers. The priority structure gave the automation loop a natural work order without human intervention.
 
-3. **Self-review loop** — The "review in one iteration, fix in the next" pattern produced meaningful findings (10 inline issues + 6 test gaps in iteration 8). Separating review from fix prevents the agent from softening its own critique.
+3. **Self-review loop** — The "review in one iteration, fix in the next" pattern produced meaningful findings across 18 iterations (53+ comments addressed, 31 unit tests added). Multi-agent specialized reviews were used repeatedly. Separating review from fix prevents the agent from softening its own critique.
 
-4. **Ralph loop execution model** — Stateless iterations with git as shared memory elegantly sidesteps the session compaction problem that killed the original orchestration approach. Each iteration gets the full context window.
+4. **Ralph loop execution model** — Stateless iterations with git as shared memory elegantly sidesteps the session compaction problem that killed the original orchestration approach. Each iteration gets the full context window. The 4-run structure showed the script handles restart/resume gracefully.
 
-5. **Overall velocity** — PRs #33-#41 created across 8 iterations. The system produced real, reviewable work at a pace impossible without structured automation.
+5. **Overall velocity** — PRs #33-#40 created and fully review-cleaned across 18 iterations in 4 runs; SDK upgrade (#41) merged. The system produced real, reviewable work at a pace impossible without structured automation.
 
 ### What Needs Improvement
 
@@ -47,7 +47,7 @@ Plot is a git-native planning system with 6 skills that was battle-tested in a r
 
 | Model | Best For | Grade |
 |-------|----------|-------|
-| **Ralph Loop** | Bulk execution: fix-build-review cycles (5-15 iterations) | B+ |
+| **Ralph Loop** | Bulk execution: fix-build-review cycles (5-20 iterations across multiple runs) | B+ |
 | **Claude RC (Scrum Master)** | Sprint planning, triage, mid-sprint decisions from phone | C+ (beta infra) |
 | **Single Orchestration** | Short, bounded tasks needing full context (3-4 subagent calls max) | C+ (compaction risk) |
 
@@ -57,16 +57,16 @@ Plot is a git-native planning system with 6 skills that was battle-tested in a r
 
 ## Priority Improvements
 
-### Phase 1: Quick Wins (1-2 sessions)
+### Phase 1: Quick Wins (1-2 sessions) — DONE
 
-These are all additive, no breaking changes, immediately improve experience:
+All 6 items implemented and committed:
 
-1. **Next action suggestions** in every skill summary (~10 lines/skill)
-2. **Progress indicator** (`Plan: [x] Draft > [*] Approved > [ ] Delivered > [ ] Released`)
-3. **Flexibility principle** documentation (makes implicit behavior explicit)
-4. **CLAUDE.md snippet template** for adopters
-5. **Sprint scope change** documentation
-6. **Skills vs CLAUDE.md table** (what goes where)
+1. ~~**Next action suggestions** in every skill summary~~ — done
+2. ~~**Progress indicator** (`Plan: [x] Draft > [*] Approved > [ ] Delivered > [ ] Released`)~~ — done
+3. ~~**Flexibility principle** documentation~~ — done
+4. ~~**CLAUDE.md snippet template** for adopters~~ — done (`skills/plot/templates/claude-md-snippet.md`)
+5. ~~**Sprint scope change** documentation~~ — done
+6. ~~**Skills vs CLAUDE.md table** (what goes where)~~ — done
 
 ### Phase 2: Automation Hardening (2-3 sessions)
 

@@ -48,9 +48,9 @@ Good theory, poor practice. The compaction problem makes this model unreliable f
 - No cost tracking. API usage per iteration is invisible.
 
 **Grade: B+**
-Practical, robust, and surprisingly effective for a first implementation. The stateless-by-design approach turns the compaction weakness of Model A into a strength. The live run data (8+ iterations, ~80 minutes, all sprint features implemented) validates the approach.
+Practical, robust, and surprisingly effective for a first implementation. The stateless-by-design approach turns the compaction weakness of Model A into a strength. The live run data (18 iterations across 4 runs, all sprint features implemented, all 8 PRs review-clean with 53+ comments addressed) validates the approach. The multi-run pattern showed the script handles restart/resume gracefully — each run picks up cleanly from git state.
 
-**When appropriate:** Multi-task sprints where each task is self-contained and discoverable from git state. The sweet spot is 5-15 iterations of moderate complexity — enough to justify automation, not so many that the lack of cross-iteration memory becomes costly.
+**When appropriate:** Multi-task sprints where each task is self-contained and discoverable from git state. The sweet spot is 5-20 iterations of moderate complexity across one or more runs — enough to justify automation, not so many that the lack of cross-iteration memory becomes costly.
 
 ### c) Claude RC (Scrum Master from Phone)
 
@@ -427,7 +427,7 @@ The script uses `/plot-sprint` for status and dispatches work according to the s
 
 ### Overall: B+
 
-A strong first implementation that validates a genuinely useful execution model. The ralph loop solves a real problem (compaction in long-running sessions) with a simple, maintainable approach. The live run data confirms it works in practice: 8+ productive iterations with no crashes, correct signal handling, and a useful wrap-up session. The weaknesses are addressable without redesigning the core architecture — they are missing features, not design flaws.
+A strong first implementation that validates a genuinely useful execution model. The ralph loop solves a real problem (compaction in long-running sessions) with a simple, maintainable approach. The live run data confirms it works in practice: 18 productive iterations across 4 runs, all 8 PRs review-clean (53+ comments addressed, 31 unit tests added), correct signal handling, and a useful wrap-up session. The multi-run pattern is a bonus — the script can be stopped and restarted without data loss because git is the only state. The weaknesses are addressable without redesigning the core architecture — they are missing features, not design flaws.
 
 The most impactful improvements would be (in priority order):
 
