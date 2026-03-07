@@ -57,7 +57,8 @@ Proves: Backpressure mechanism works across the full connection lifecycle
 
 - Touch every layer, implement the minimum in each
 - Real code, not mocks — the point is to prove real integration
-- No error handling, no edge cases, no polish
+- Minimal error handling — just enough for types and linters. No edge cases, no polish
+- Add debug logs prefixed with the feature slug (e.g., `[sse-backpressure] connected`) — trace the bullet through each layer. Remove or adapt to project conventions when widening
 - Test immediately — does one request flow through all layers?
 
 ### Step 4: Evaluate and Widen
@@ -70,6 +71,6 @@ Proves: Backpressure mechanism works across the full connection lifecycle
 
 - **Building one layer first** — horizontal, not vertical. Delays integration feedback.
 - **Throwaway tracer** — tracers are production code. They carry forward.
-- **Over-engineered tracer** — if it has error handling and edge cases, it's too wide.
+- **Over-engineered tracer** — if it has more than basic error handling and covers edge cases, it's too wide.
 - **Skipping layers** — a tracer that skips a layer proves nothing about integration.
 - **Mocking integration points** — real integration is the whole point.
