@@ -19,7 +19,7 @@ compatibility: Designed for Claude Code and Cursor.
 
 Build one thin vertical slice through all system layers before widening. Tracer bullets are production code — not prototypes, not spikes. They validate architecture through real integration, then become the foundation for remaining work.
 
-Critical in AI-assisted development, where agents build horizontal layers in isolation and discover integration issues late.
+AI agents are especially prone to building horizontal layers in isolation, discovering integration failures only after committing to an unproven architecture.
 
 ## When to Use
 
@@ -63,7 +63,7 @@ Proves: Backpressure mechanism works across the full connection lifecycle
 ### Step 4: Evaluate and Widen
 
 1. **Record findings** — what worked, what surprised, what needs revision
-2. **Next step:** if validating a design, refine the plan. If during implementation, merge the tracer and build on it.
+2. **Next step:** if validating a design, refine the plan. If implementing, merge the tracer and build on it.
 3. **Widen** — add error handling, edge cases, features. Each step builds on the proven foundation.
 
 ## Anti-Patterns
