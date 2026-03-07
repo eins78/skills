@@ -86,13 +86,25 @@ tmux kill-pane -t "$PANE"
 - tmux 3.x+ (for `wait-for`, `pipe-pane -o`, format strings)
 - Bash (recipes use bash syntax)
 
+## Decisions
+
+### Control mode (`tmux -CC`) — rejected (2026-03-07)
+
+Researched thoroughly. Control mode provides real-time `%output` push notifications (no polling) and structured `%begin`/`%end` response framing. However it requires a **persistent connection** with an event loop and octal-decoding parser — effectively a daemon, not a CLI tool.
+
+Our scripts are stateless fire-and-forget shell commands. Control mode would replace polling with push, but at the cost of:
+- Persistent `coproc` or Python subprocess (architectural mismatch)
+- Octal unescaping for all `%output` data
+- State management (accumulate output, detect prompt patterns)
+- Fragile stdin handling (empty line = instant detach)
+
+**Verdict:** Anything more than a CLI is too much. The `send-keys` + `wait-for` + `capture-pane` pattern is simple, works over SSH, and has no persistent state. Control mode is the right tool for terminal emulator integration (iTerm2, WezTerm), not for ad-hoc automation scripts.
+
 ## Limitations
 
-- **No control mode coverage** — `tmux -CC` provides async notifications and structured output but is complex to document as a skill pattern; pending experimentation
 - **monitor-silence/activity are window-level** — can't monitor individual panes in multi-pane layouts
 - **tmux-run.sh marker is visible in pane** — the end-marker echoes in the pane (functional but cosmetically noisy)
 
 ## Future Improvements
 
-- Control mode (`tmux -CC`) patterns for structured programmatic interaction (experiment first)
 - `libtmux` (Python) patterns for complex orchestration
