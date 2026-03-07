@@ -29,8 +29,33 @@ Extracted from:
 
 ```
 tmux-control/
-├── SKILL.md      # Patterns and recipes for Claude
-└── README.md     # This file
+├── SKILL.md              # Patterns and recipes for Claude
+├── README.md             # This file
+└── scripts/
+    ├── tmux-run.sh       # Send command, wait, return output
+    └── tmux-watch.sh     # Monitor pane until pattern appears
+```
+
+## Scripts
+
+### tmux-run.sh
+
+Wraps send-keys + wait-for + capture-pane into a single command. Uses marker injection to extract just the command's output from the pane buffer. Forwards the remote command's exit code.
+
+```bash
+tmux-run.sh -t %42 'npm test'           # run and print output
+output=$(tmux-run.sh -t %42 -q 'ls')    # capture to variable
+tmux-run.sh -t %42 -T 30 'make build'   # 30s timeout
+```
+
+### tmux-watch.sh
+
+Polls capture-pane until a grep -E pattern matches. Simple and reliable — no FIFO or pipe-pane complexity.
+
+```bash
+tmux-watch.sh -t %42 'BUILD_DONE'             # wait for marker
+tmux-watch.sh -t %42 -T 600 -i 5 'Tests.*ok'  # custom timeout/interval
+tmux-watch.sh -t %42 '\$\s*$'                 # wait for shell prompt
 ```
 
 ## Testing
@@ -63,13 +88,11 @@ tmux kill-pane -t "$PANE"
 
 ## Limitations
 
-- **No control mode coverage** — `tmux -CC` provides async notifications and structured output but is complex to document as a skill pattern; may add in future
-- **No tmux MCP server integration** — several exist (jonrad/tmux-mcp, bnomei/tmux-mcp) but not yet evaluated
+- **No control mode coverage** — `tmux -CC` provides async notifications and structured output but is complex to document as a skill pattern; pending experimentation
 - **monitor-silence/activity are window-level** — can't monitor individual panes in multi-pane layouts
+- **tmux-run.sh marker is visible in pane** — the end-marker echoes in the pane (functional but cosmetically noisy)
 
 ## Future Improvements
 
-- Control mode (`tmux -CC`) patterns for structured programmatic interaction
-- Evaluate tmux MCP servers for native tool integration
-- Script templates for common multi-pane agent workflows
+- Control mode (`tmux -CC`) patterns for structured programmatic interaction (experiment first)
 - `libtmux` (Python) patterns for complex orchestration

@@ -12,8 +12,9 @@ Reliable patterns for programmatic tmux interaction. The #1 source of bugs is ta
 1. **Use unique IDs** for targeting: `%N` (pane), `@N` (window), `$NAME` (session) — never bare indexes
 2. **Use `wait-for`** instead of `sleep` for synchronization
 3. **Pass commands to `new-window`/`split-window`** directly — avoid send-keys to freshly created panes (race condition)
-4. **Verify targets exist** before sending: `tmux has-session -t $SESSION 2>/dev/null`
-5. **Use full binary paths** in commands sent to panes — aliases and shell functions are unavailable
+4. **Always use `-d` (detached)** with `new-window` and `split-window` — never steal focus from the user's active window
+5. **Verify targets exist** before sending: `tmux has-session -t $SESSION 2>/dev/null`
+6. **Use full binary paths** in commands sent to panes — aliases and shell functions are unavailable
 
 ## Targeting
 
@@ -46,10 +47,10 @@ tmux list-windows -F '#{window_id} #{window_index} #{window_name}'
 ### Capture pane ID at creation
 
 ```bash
-# Best pattern: capture the ID when you create the pane
-PANE_ID=$(tmux split-window -P -F '#{pane_id}')
+# Best pattern: capture the ID when you create the pane (-d = don't steal focus)
+PANE_ID=$(tmux split-window -d -P -F '#{pane_id}')
 # or
-PANE_ID=$(tmux new-window -P -F '#{pane_id}')
+PANE_ID=$(tmux new-window -d -P -F '#{pane_id}')
 
 # Now use it reliably
 tmux send-keys -t "$PANE_ID" 'echo hello' Enter
@@ -60,12 +61,12 @@ tmux send-keys -t "$PANE_ID" 'echo hello' Enter
 ### Preferred: pass command directly (avoids race condition)
 
 ```bash
-# Command runs as soon as shell is ready — no race
-tmux new-window 'echo "hello from new window"; exec bash'
-tmux split-window 'npm run dev; exec bash'
+# Command runs as soon as shell is ready — no race (-d = detached, don't steal focus)
+tmux new-window -d 'echo "hello from new window"; exec bash'
+tmux split-window -d 'npm run dev; exec bash'
 
 # Capture the ID too
-PANE_ID=$(tmux new-window -P -F '#{pane_id}' 'npm test; exec bash')
+PANE_ID=$(tmux new-window -d -P -F '#{pane_id}' 'npm test; exec bash')
 ```
 
 ### Why send-keys to new panes is fragile
@@ -75,7 +76,7 @@ PANE_ID=$(tmux new-window -P -F '#{pane_id}' 'npm test; exec bash')
 If you must use send-keys on a new pane, add a brief delay:
 
 ```bash
-PANE_ID=$(tmux split-window -P -F '#{pane_id}')
+PANE_ID=$(tmux split-window -d -P -F '#{pane_id}')
 sleep 0.5  # let shell initialize — fragile but sometimes necessary
 tmux send-keys -t "$PANE_ID" 'your command' Enter
 ```
@@ -259,7 +260,7 @@ tmux capture-pane -t "$PANE" -p -S -5
 
 ```bash
 # 1. Create dedicated window
-PANE=$(tmux new-window -P -F '#{pane_id}' -n 'build')
+PANE=$(tmux new-window -d -P -F '#{pane_id}' -n 'build')
 
 # 2. Send the long-running command (with completion marker)
 tmux send-keys -t "$PANE" 'npm run build > /tmp/build.out 2>&1; echo "BUILD_DONE" >> /tmp/build.out' Enter
@@ -289,3 +290,107 @@ echo "Command completed"
 # 4. Clean up
 tmux pipe-pane -t "$PANE"
 ```
+
+## Helper Scripts
+
+Two scripts in `scripts/` wrap common patterns into single commands.
+
+### tmux-run.sh — run command and get output
+
+```bash
+# Send command, wait for completion, return output
+tmux-run.sh -t %42 'npm test'
+
+# With timeout (default: 120s)
+tmux-run.sh -t %42 -T 60 'make build'
+
+# Capture output in a variable
+output=$(tmux-run.sh -t %42 -q 'git status')
+
+# Exit code is forwarded from the remote command
+tmux-run.sh -t %42 'npm test' || echo "tests failed"
+```
+
+- stdout: command output only
+- stderr: status messages (suppress with `-q`)
+- Exit code: mirrors remote command (128 = timeout)
+- Requires pane ID (`%N` format)
+
+### tmux-watch.sh — wait for pattern in pane output
+
+```bash
+# Wait for a build to finish
+tmux-watch.sh -t %42 'BUILD_DONE'
+
+# With timeout and poll interval
+tmux-watch.sh -t %42 -T 300 -i 5 'Tests:.*passed'
+
+# Wait for shell prompt (agent finished)
+tmux-watch.sh -t %42 '\$\s*$'
+```
+
+- Pattern is extended regex (grep -E)
+- stdout: matching line(s)
+- Exit 0 = found, 1 = timeout, 2 = pane not found
+- Default: 300s timeout, 2s poll interval
+
+## Multi-Agent Patterns
+
+Patterns for running multiple Claude Code instances (or any agents) in parallel tmux panes.
+
+### Spawn parallel agents
+
+```bash
+# Create a multi-pane layout
+# -d on new-window prevents stealing focus from the user
+PANE1=$(tmux new-window -d -n 'agents' -P -F '#{pane_id}')
+PANE2=$(tmux split-window -d -h -t "$PANE1" -P -F '#{pane_id}')
+PANE3=$(tmux split-window -d -v -t "$PANE2" -P -F '#{pane_id}')
+
+# Launch agents in each pane
+# env -u CLAUDECODE allows nested Claude instances
+for PANE in $PANE1 $PANE2 $PANE3; do
+  tmux send-keys -t "$PANE" \
+    "env -u CLAUDECODE claude -p 'your task...' --output-format json > /tmp/agent-${PANE}.json 2>&1; echo DONE > /tmp/agent-${PANE}.signal" \
+    Enter
+done
+
+# Wait for all agents to complete
+for PANE in $PANE1 $PANE2 $PANE3; do
+  while [ ! -f "/tmp/agent-${PANE}.signal" ]; do sleep 5; done
+done
+
+# Collect results
+for PANE in $PANE1 $PANE2 $PANE3; do
+  echo "=== Agent $PANE ==="
+  jq -r '.result' "/tmp/agent-${PANE}.json"
+done
+```
+
+### Monitor agents with tmux-watch.sh
+
+```bash
+# Watch each pane for shell prompt (agent finished)
+for PANE in $PANE1 $PANE2 $PANE3; do
+  tmux-watch.sh -t "$PANE" -T 600 -q '\$\s*$' &
+done
+wait  # blocks until all watchers return
+echo "All agents complete"
+```
+
+### File-based coordination (proven pattern)
+
+The ralph-sprint system proves this coordination model at scale:
+
+- **Git as shared memory** — agents coordinate via branches, PRs, committed files
+- **File-based signals** — write marker files, poll for existence
+- **Promise signals** — use `<promise>COMPLETE</promise>` in agent output for unambiguous completion detection (plain-text markers get false-positives from echoed prompt text)
+- **Stateless iterations** — each agent starts fresh from git state, avoiding context compaction issues
+
+### Anti-patterns
+
+- **Don't send-keys to a pane running Claude Code** — it reads stdin, your keystrokes become input to the agent
+- **Don't use `monitor-activity` for coordination** — it's window-level, not pane-level
+- **Don't share a pane between agents** — one agent per pane, always
+- **Don't use sequential loops for independent tasks** — use parallel panes instead
+- **Don't rely on `sleep` for inter-agent timing** — use file signals or `wait-for` channels
