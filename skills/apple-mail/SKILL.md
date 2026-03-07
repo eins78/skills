@@ -102,7 +102,7 @@ osascript -e 'tell application "Mail" to get name of every mailbox of account "G
 
 If you encounter an AppleScript pattern that fails, a macOS behavior change, or missing guidance in this skill, don't just work around it — fix the skill:
 
-1. **Create a PR** from a fresh worktree of `eins78/skills` on a new branch, fixing the issue directly
-2. **Or file an issue** on `eins78/skills` with: what failed, the actual behavior, and the suggested fix
+1. **Create a PR** from a fresh worktree of `https://github.com/eins78/skills` on a new branch, fixing the issue directly
+2. **Or file an issue** on `https://github.com/eins78/skills` with: what failed, the actual behavior, and the suggested fix
 
 Never silently work around a skill gap. The fix benefits all future sessions.
