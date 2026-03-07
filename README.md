@@ -7,7 +7,7 @@ Personal collection of [Agent Skills](https://agentskills.io/) for Claude Code a
 | Skill | Description |
 |-------|-------------|
 | [bye](skills/bye/) | Session wrap-up — reconstructs history, creates sessionlog, commits, summarizes next steps |
-| [chrome-cdp-browser](skills/chrome-cdp-browser/) | Dedicated Chrome instance with CDP for Playwright MCP — persistent sessions, launchd-managed |
+| [chrome-browser](skills/chrome-browser/) | Dedicated Chrome with CDP for Playwright MCP — persistent sessions, launchd-managed, Cloudflare tips |
 | [plot](skills/plot/) | Git-native planning dispatcher with 4-phase workflow (idea → approve → deliver → release) |
 | [plot-idea](skills/plot-idea/) | Create a plan: idea branch, plan file, and draft PR |
 | [plot-approve](skills/plot-approve/) | Merge approved plan, fan out into implementation branches |

@@ -1,10 +1,10 @@
-# Chrome CDP Browser Skill
+# Chrome Browser Skill
 
-Developer documentation for the dedicated Chrome CDP browser automation skill.
+Developer documentation for the dedicated Chrome browser automation skill.
 
 ## Purpose
 
-Reusable setup guide for creating a dedicated Chrome instance with CDP for Playwright MCP browser automation. Replaces unreliable browser extensions with a persistent, launchd-managed Chrome instance.
+Reusable setup guide for a dedicated Chrome instance with CDP for Playwright MCP browser automation. Persistent sessions, launchd-managed, multi-session safe.
 
 ## Tier
 
@@ -17,6 +17,17 @@ Developed for qubert-config ([sessionlog](https://github.com/eins78/qubert-confi
 ## Key Insight
 
 Chrome enforces a single-instance lock per user-data-dir. When the user's daily Chrome is running, CDP can't bind to the default profile. The solution is a **dedicated `~/.cache/chrome-cdp-profile`** that runs a second Chrome instance in parallel.
+
+## Skill Structure
+
+```
+chrome-browser/
+├── SKILL.md                      # Lean overview, architecture, decisions
+├── README.md                     # This file
+├── INSTALL.md                    # Full setup checklist
+├── launch-chrome-cdp.sh          # Idempotent launch script
+└── com.example.chrome-cdp.plist  # Template launchd plist
+```
 
 ## Validated On
 

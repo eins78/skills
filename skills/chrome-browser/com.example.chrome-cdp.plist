@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.example.chrome-cdp</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Applications/Google Chrome.app/Contents/MacOS/Google Chrome</string>
+        <string>--remote-debugging-port=9222</string>
+        <string>--user-data-dir=/Users/USERNAME/.cache/chrome-cdp-profile</string>
+    </array>
+
+    <!-- Start Chrome with CDP on login -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Restart only on crash (non-zero exit), not on intentional quit -->
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/chrome-cdp.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/chrome-cdp.stderr.log</string>
+</dict>
+</plist>
