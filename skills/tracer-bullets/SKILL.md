@@ -1,16 +1,18 @@
 ---
 name: tracer-bullets
 description: >-
-  Use when facing technical uncertainty or building a large feature with a natural
-  core-plus-extras decomposition. Guides building one thin vertical slice end-to-end
-  before widening. Standalone strategy — works with or without Plot workflow.
+
+  Use when facing technical uncertainty, unproven architecture, or building a large
+  feature where agents or humans risk getting lost in details before confirming the
+  architecture works. Prevents horizontal layer-by-layer building that delays
+  integration feedback.
 globs: []
 license: MIT
 metadata:
   author: eins78
   repo: https://github.com/eins78/skills
   version: 1.0.0-beta.1
-compatibility: Designed for Claude Code and Cursor. Works standalone or as a Plot sibling skill.
+compatibility: Designed for Claude Code and Cursor.
 ---
 
 # Tracer Bullets
@@ -71,21 +73,3 @@ Proves: Backpressure mechanism works across the full connection lifecycle
 - **Over-engineered tracer** — if it has error handling and edge cases, it's too wide.
 - **Skipping layers** — a tracer that skips a layer proves nothing about integration.
 - **Mocking integration points** — real integration is the whole point.
-
-## Plot Integration
-
-When used within the Plot workflow, tracer bullets integrate at two lifecycle positions. Plans can define a `### Tracer` subsection in `## Branches`:
-
-```markdown
-### Tracer
-- `feature/<slug>-tracer` — <thin slice description>
-  Layers: <layer> → <layer> → <layer>
-  Proves: <what this validates>
-  Status: Not started | In progress | Complete
-```
-
-**Pre-approval (Phase: Draft):** Stay on the `idea/<slug>` branch. Build the tracer alongside plan files. Update `Status:` to `Complete`, add a `## Tracer Results` section with findings. Refine the plan, then proceed to review/approve. Tracer code carries forward when the plan PR merges.
-
-**Post-approval (Phase: Approved):** Create `feature/<slug>-tracer` branch from main. Merge the thin slice before creating remaining implementation branches.
-
-`/plot-approve` step 2b suggests a tracer bullet when uncertainty or feature size warrants it.

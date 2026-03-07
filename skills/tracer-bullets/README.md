@@ -2,7 +2,7 @@
 
 ## Purpose
 
-General development strategy for reducing uncertainty through thin vertical slices. Guides building one end-to-end path through all system layers before widening into full implementation. Works standalone on any branch/project, or as a Plot sibling skill (referenced by `/plot-approve` heuristics and the plan template's `### Tracer` subsection).
+General development strategy for reducing uncertainty through thin vertical slices. Guides building one end-to-end path through all system layers before widening into full implementation. Works standalone on any branch or project. Plot skills reference it as a sibling — see `plot/SKILL.md` Sibling Skills section for integration details.
 
 ## Tier
 
