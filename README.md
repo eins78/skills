@@ -15,6 +15,7 @@ Personal collection of [Agent Skills](https://agentskills.io/) for Claude Code a
 | [plot-release](skills/plot-release/) | Create versioned release from delivered plans |
 | [plot-sprint](skills/plot-sprint/) | Time-boxed sprint coordination with MoSCoW prioritization |
 | [ralph-plot-sprint](skills/ralph-plot-sprint/) | Automated sprint runner: `ralph-sprint.sh` loop + `/ralph-plot-sprint` iteration skill |
+| [tracer-bullets](skills/tracer-bullets/) | Thin vertical slice before widening — reduce uncertainty by building end-to-end first |
 | [typescript-strict-patterns](skills/typescript-strict-patterns/) | TypeScript patterns — tsconfig, ESLint strict, Zod, discriminated unions, branded types |
 
 ## Installation
