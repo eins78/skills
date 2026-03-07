@@ -99,7 +99,7 @@ git checkout main
 git pull origin main
 ```
 
-Find the plan file: `ls docs/plans/active/<slug>.md` resolves to the date-prefixed file (e.g., `docs/plans/YYYY-MM-DD-<slug>.md`). Read it and parse the `## Branches` section. If the plan has a `Sprint: <name>` field in its Status section, note the sprint membership for the summary. Expected format:
+Find the plan file: `ls docs/plans/active/<slug>.md` resolves to the date-prefixed file (e.g., `docs/plans/YYYY-MM-DD-<slug>.md`). Read it and find the section headed with "Branches" (matches `## Branches`, `## Implementation Branches`, `### Implementation Branches`, or any heading containing the word "Branches"). If the plan has a `Sprint: <name>` field in its Status section, note the sprint membership for the summary. Expected format:
 
 ```markdown
 - `type/name` — description
@@ -116,7 +116,7 @@ Example — a valid Branches section:
 ```
 
 Parsing rules:
-1. Find the `## Branches` section
+1. Find the section headed with "Branches" (matches `## Branches`, `## Implementation Branches`, `### Implementation Branches`, or any heading containing the word "Branches")
 2. For each line starting with `- \``: extract the branch name between backticks, extract the description after ` — `
 3. Skip comment lines (`<!-- ... -->`) and blank lines
 4. If no branches are listed (or section is empty/only has the template comment), error: "No branches listed in the plan. Add branches to the `## Branches` section before approving."
@@ -124,10 +124,10 @@ Parsing rules:
 
 ### 4b. Check for Branch Conflicts
 
-Before creating branches, check if any branch name from the `## Branches` section already exists in another Draft/Approved plan:
+Before creating branches, check if any branch name from the Branches section already exists in another Draft/Approved plan:
 
 - Read all active plan files via `docs/plans/active/*.md` on main (excluding the current plan)
-- For each plan, parse its `## Branches` section for branch names
+- For each plan, parse its Branches section (any heading containing "Branches") for branch names
 - If any branch name in the current plan already appears in another plan, warn the user and ask to confirm before proceeding
 
 Also check if any of the branches already exist as remote branches (`git ls-remote --heads origin <branch-name>`). If so, warn — the branch may be from a previous run of `/plot-approve` or from unrelated work.
