@@ -1,0 +1,20 @@
+{
+  "name": "eins78-marketplace",
+  "description": "Marketplace for eins78 agent skills",
+  "owner": {
+    "name": "Max Albrecht",
+    "email": "1@178.is"
+  },
+  "plugins": [
+    {
+      "name": "eins78-skills",
+      "description": "Agent skills collection: Plot planning workflow, session management, TypeScript patterns, Chrome CDP, and more",
+      "version": "1.0.0",
+      "source": "./",
+      "author": {
+        "name": "Max Albrecht",
+        "email": "1@178.is"
+      }
+    }
+  ]
+}

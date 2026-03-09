@@ -1,0 +1,15 @@
+{
+  "name": "eins78-skills",
+  "displayName": "eins78 Skills",
+  "description": "Agent skills collection: Plot planning workflow, session management, TypeScript patterns, Chrome CDP, and more",
+  "version": "1.0.0",
+  "author": {
+    "name": "Max Albrecht",
+    "email": "1@178.is"
+  },
+  "homepage": "https://github.com/eins78/skills",
+  "repository": "https://github.com/eins78/skills",
+  "license": "MIT",
+  "keywords": ["skills", "plot", "planning", "typescript", "chrome", "session-management"],
+  "skills": "./skills/"
+}

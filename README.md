@@ -21,7 +21,18 @@ Personal collection of [Agent Skills](https://agentskills.io/) for Claude Code a
 
 ## Installation
 
-### One-liner (all skills)
+### As a Claude Code / Cursor plugin (recommended — auto-updates)
+
+Register the marketplace and install:
+
+```
+/plugin marketplace add eins78/skills
+/plugin install eins78-skills@eins78-marketplace
+```
+
+Skills auto-update when you run `/plugin update`.
+
+### Via skills CLI
 
 ```bash
 pnpx skills add https://github.com/eins78/skills.git --global --agent claude-code --all --yes
