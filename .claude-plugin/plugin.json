@@ -1,6 +1,6 @@
 {
   "name": "eins78-skills",
-  "description": "Agent skills collection: Plot planning workflow, session management, TypeScript patterns, Chrome CDP, and more",
+  "description": "Agent skills collection: session management, TypeScript patterns, Chrome CDP, tmux, Apple integrations",
   "version": "1.0.0",
   "author": {
     "name": "Max Albrecht",
@@ -9,5 +9,5 @@
   "homepage": "https://github.com/eins78/skills",
   "repository": "https://github.com/eins78/skills",
   "license": "MIT",
-  "keywords": ["skills", "plot", "planning", "typescript", "chrome", "session-management"]
+  "keywords": ["skills", "typescript", "chrome", "session-management", "tmux", "apple"]
 }

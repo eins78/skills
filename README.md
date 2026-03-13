@@ -1,20 +1,16 @@
 # eins78/skills
 
-Personal collection of [Agent Skills](https://agentskills.io/) for Claude Code and compatible AI coding agents.
+Collection of [Agent Skills](https://agentskills.io/) for Claude Code and compatible AI coding agents.
+
+> **Looking for Plot?** The git-native planning workflow has moved to its own repo: **[eins78/plot](https://github.com/eins78/plot)**
 
 ## Skills
 
 | Skill | Description |
 |-------|-------------|
+| [apple-mail](skills/apple-mail/) | Read email via Apple Mail.app and AppleScript (read-only) |
 | [bye](skills/bye/) | Session wrap-up — reconstructs history, creates sessionlog, commits, summarizes next steps |
 | [chrome-browser](skills/chrome-browser/) | Dedicated Chrome with CDP for Playwright MCP — persistent sessions, launchd-managed, Cloudflare tips |
-| [plot](skills/plot/) | Git-native planning dispatcher with 4-phase workflow (idea → approve → deliver → release) |
-| [plot-idea](skills/plot-idea/) | Create a plan: idea branch, plan file, and draft PR |
-| [plot-approve](skills/plot-approve/) | Merge approved plan, fan out into implementation branches |
-| [plot-deliver](skills/plot-deliver/) | Verify implementation complete, archive the plan |
-| [plot-release](skills/plot-release/) | Create versioned release from delivered plans |
-| [plot-sprint](skills/plot-sprint/) | Time-boxed sprint coordination with MoSCoW prioritization |
-| [ralph-plot-sprint](skills/ralph-plot-sprint/) | Automated sprint runner: `ralph-sprint.sh` loop + `/ralph-plot-sprint` iteration skill |
 | [tracer-bullets](skills/tracer-bullets/) | Thin vertical slice before widening — reduce uncertainty by building end-to-end first |
 | [tmux-control](skills/tmux-control/) | Reliable tmux patterns — targeting, send-keys, capture-pane, wait-for sync, monitoring |
 | [typescript-strict-patterns](skills/typescript-strict-patterns/) | TypeScript patterns — tsconfig, ESLint strict, Zod, discriminated unions, branded types |
