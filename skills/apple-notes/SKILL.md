@@ -18,16 +18,16 @@ Read notes via Notes.app AppleScript. **No creating, updating, or deleting notes
 ### List folders
 
 ```bash
-./scripts/list-folders.sh              # All folders across all accounts
-./scripts/list-folders.sh iCloud       # Only iCloud folders
+${CLAUDE_SKILL_DIR}/scripts/list-folders.sh              # All folders across all accounts
+${CLAUDE_SKILL_DIR}/scripts/list-folders.sh iCloud       # Only iCloud folders
 ```
 
 ### List notes in a folder
 
 ```bash
-./scripts/list-notes.sh                        # iCloud/Notes (default)
-./scripts/list-notes.sh "Shopping"             # iCloud/Shopping
-./scripts/list-notes.sh "Notes" "Gmail"        # Gmail/Notes
+${CLAUDE_SKILL_DIR}/scripts/list-notes.sh                        # iCloud/Notes (default)
+${CLAUDE_SKILL_DIR}/scripts/list-notes.sh "Shopping"             # iCloud/Shopping
+${CLAUDE_SKILL_DIR}/scripts/list-notes.sh "Notes" "Gmail"        # Gmail/Notes
 ```
 
 Output: `note name | modification date` (one per line)
@@ -35,8 +35,8 @@ Output: `note name | modification date` (one per line)
 ### Read a note
 
 ```bash
-./scripts/read-note.sh "Shopping List"             # Search all accounts
-./scripts/read-note.sh "Meeting Notes" "iCloud"    # Specific account
+${CLAUDE_SKILL_DIR}/scripts/read-note.sh "Shopping List"             # Search all accounts
+${CLAUDE_SKILL_DIR}/scripts/read-note.sh "Meeting Notes" "iCloud"    # Specific account
 ```
 
 Returns metadata header + HTML body.
@@ -44,8 +44,8 @@ Returns metadata header + HTML body.
 ### Search notes by name
 
 ```bash
-./scripts/search-notes.sh "recipe"                 # Search all accounts
-./scripts/search-notes.sh "recipe" "iCloud"        # Specific account
+${CLAUDE_SKILL_DIR}/scripts/search-notes.sh "recipe"                 # Search all accounts
+${CLAUDE_SKILL_DIR}/scripts/search-notes.sh "recipe" "iCloud"        # Specific account
 ```
 
 Output: `note name | account/folder | modification date` (one per line)

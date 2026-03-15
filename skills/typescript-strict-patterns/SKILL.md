@@ -12,8 +12,8 @@ compatibility: Designed for Claude Code and Cursor
 
 # TypeScript Strict Patterns
 
-> **Project setup** — read [`project-setup.md`](./project-setup.md) when bootstrapping a new project or changing tsconfig / ts-reset / type-fest.
-> **ESLint baseline** — read [`eslint.config.mjs`](./eslint.config.mjs) when adding or tweaking lint rules.
+> **Project setup** — read [`project-setup.md`](${CLAUDE_SKILL_DIR}/project-setup.md) when bootstrapping a new project or changing tsconfig / ts-reset / type-fest.
+> **ESLint baseline** — read [`eslint.config.mjs`](${CLAUDE_SKILL_DIR}/eslint.config.mjs) when adding or tweaking lint rules.
 
 ## Discriminated Unions + Exhaustive Checking
 

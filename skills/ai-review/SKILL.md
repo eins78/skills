@@ -11,7 +11,7 @@ license: MIT
 metadata:
   author: eins78
   repo: https://github.com/eins78/skills
-  version: "0.0.2"
+  version: "0.0.3"
 compatibility: Claude Code, Cursor
 ---
 
@@ -21,7 +21,7 @@ Request code reviews from a second AI model mid-session via CLI.
 
 ## Prerequisites
 
-- `gemini` CLI installed (run `./scripts/install-dependencies.sh`)
+- `gemini` CLI installed (run `${CLAUDE_SKILL_DIR}/scripts/install-dependencies.sh`)
 - Google Account OAuth completed: run `gemini` interactively once
 - Optional: `codex` CLI for OpenAI reviews: `brew install codex`
 
@@ -61,32 +61,32 @@ Choose based on context:
 
 ### Step 2: Run the Review
 
-Use the review script:
+Use the review script at `${CLAUDE_SKILL_DIR}/scripts/review.sh` — this path resolves to the skill's own directory regardless of the current working directory. **Never use `./scripts/review.sh`** (that's relative to CWD and will fail in other repos). **Never pipe code directly to `gemini` or `codex`** — always use the review script.
 
 ```bash
 # Review unstaged changes (default)
-./scripts/review.sh
+${CLAUDE_SKILL_DIR}/scripts/review.sh
 
 # Review staged changes
-./scripts/review.sh --staged
+${CLAUDE_SKILL_DIR}/scripts/review.sh --staged
 
 # Review specific files
-./scripts/review.sh path/to/file1.swift path/to/file2.swift
+${CLAUDE_SKILL_DIR}/scripts/review.sh path/to/file1.swift path/to/file2.swift
 
 # Review branch diff vs main
-./scripts/review.sh --branch
+${CLAUDE_SKILL_DIR}/scripts/review.sh --branch
 
 # Review branch vs remote (when working on main directly)
-REVIEW_BASE_BRANCH=origin/main ./scripts/review.sh --branch
+REVIEW_BASE_BRANCH=origin/main ${CLAUDE_SKILL_DIR}/scripts/review.sh --branch
 
 # Add extra context string for better reviews
-./scripts/review.sh --context "SwiftUI app, iOS 18+, Swift 6" path/to/file.swift
+${CLAUDE_SKILL_DIR}/scripts/review.sh --context "SwiftUI app, iOS 18+, Swift 6" path/to/file.swift
 
 # Review with a specific plan file
-./scripts/review.sh --plan PLAN.md path/to/file.swift
+${CLAUDE_SKILL_DIR}/scripts/review.sh --plan PLAN.md path/to/file.swift
 
 # Skip auto-context (only send the code/diff)
-./scripts/review.sh --no-context --staged
+${CLAUDE_SKILL_DIR}/scripts/review.sh --no-context --staged
 ```
 
 ### Step 3: Act on Feedback
@@ -125,7 +125,7 @@ Default provider is `gemini`. Override per-session:
 
 ```bash
 # Use OpenAI instead
-REVIEW_PROVIDER=codex ./scripts/review.sh
+REVIEW_PROVIDER=codex ${CLAUDE_SKILL_DIR}/scripts/review.sh
 ```
 
 ## Important Notes

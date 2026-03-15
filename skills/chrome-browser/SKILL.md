@@ -33,7 +33,7 @@ curl -s http://127.0.0.1:9222/json/version
 claude mcp add -s user playwright -- npx @playwright/mcp --cdp-endpoint http://127.0.0.1:9222
 
 # Manual launch (if not using launchd)
-./launch-chrome-cdp.sh
+${CLAUDE_SKILL_DIR}/launch-chrome-cdp.sh
 ```
 
 ## Key Decisions
@@ -49,7 +49,7 @@ claude mcp add -s user playwright -- npx @playwright/mcp --cdp-endpoint http://1
 ## Troubleshooting
 
 - **Cloudflare challenges:** If a site shows a Cloudflare challenge/waiting page, just wait — the browser MCP can usually handle it. We are very rarely actually blocked.
-- **CDP not responding:** Run `launch-chrome-cdp.sh` to start or check status.
+- **CDP not responding:** Run `${CLAUDE_SKILL_DIR}/launch-chrome-cdp.sh` to start or check status.
 - **Profile conflicts:** If Chrome complains about profile lock, check for zombie Chrome processes: `ps aux | grep chrome-cdp-profile`
 
 ## Setup

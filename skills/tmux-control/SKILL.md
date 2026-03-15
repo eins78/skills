@@ -293,22 +293,22 @@ tmux pipe-pane -t "$PANE"
 
 ## Helper Scripts
 
-Two scripts in `scripts/` wrap common patterns into single commands.
+Two helper scripts in `${CLAUDE_SKILL_DIR}/scripts/` wrap common patterns into single commands. Always use the full `${CLAUDE_SKILL_DIR}/scripts/` path — these scripts are bundled with this skill, not in the project being worked on.
 
 ### tmux-run.sh — run command and get output
 
 ```bash
 # Send command, wait for completion, return output
-tmux-run.sh -t %42 'npm test'
+${CLAUDE_SKILL_DIR}/scripts/tmux-run.sh -t %42 'npm test'
 
 # With timeout (default: 120s)
-tmux-run.sh -t %42 -T 60 'make build'
+${CLAUDE_SKILL_DIR}/scripts/tmux-run.sh -t %42 -T 60 'make build'
 
 # Capture output in a variable
-output=$(tmux-run.sh -t %42 -q 'git status')
+output=$(${CLAUDE_SKILL_DIR}/scripts/tmux-run.sh -t %42 -q 'git status')
 
 # Exit code is forwarded from the remote command
-tmux-run.sh -t %42 'npm test' || echo "tests failed"
+${CLAUDE_SKILL_DIR}/scripts/tmux-run.sh -t %42 'npm test' || echo "tests failed"
 ```
 
 - stdout: command output only
@@ -320,13 +320,13 @@ tmux-run.sh -t %42 'npm test' || echo "tests failed"
 
 ```bash
 # Wait for a build to finish
-tmux-watch.sh -t %42 'BUILD_DONE'
+${CLAUDE_SKILL_DIR}/scripts/tmux-watch.sh -t %42 'BUILD_DONE'
 
 # With timeout and poll interval
-tmux-watch.sh -t %42 -T 300 -i 5 'Tests:.*passed'
+${CLAUDE_SKILL_DIR}/scripts/tmux-watch.sh -t %42 -T 300 -i 5 'Tests:.*passed'
 
 # Wait for shell prompt (agent finished)
-tmux-watch.sh -t %42 '\$\s*$'
+${CLAUDE_SKILL_DIR}/scripts/tmux-watch.sh -t %42 '\$\s*$'
 ```
 
 - Pattern is extended regex (grep -E)
@@ -372,7 +372,7 @@ done
 ```bash
 # Watch each pane for shell prompt (agent finished)
 for PANE in $PANE1 $PANE2 $PANE3; do
-  tmux-watch.sh -t "$PANE" -T 600 -q '\$\s*$' &
+  ${CLAUDE_SKILL_DIR}/scripts/tmux-watch.sh -t "$PANE" -T 600 -q '\$\s*$' &
 done
 wait  # blocks until all watchers return
 echo "All agents complete"
