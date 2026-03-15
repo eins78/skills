@@ -22,7 +22,7 @@ Request code reviews from a second AI model mid-session via CLI.
 ## Prerequisites
 
 - `gemini` CLI installed (run `${CLAUDE_SKILL_DIR}/scripts/install-dependencies.sh`)
-- Google Account OAuth completed: run `gemini` interactively once
+- Auth: either `GEMINI_API_KEY` env var (recommended — see "Paid API" below) or Google Account OAuth (`gemini` interactively once)
 - Optional: `codex` CLI for OpenAI reviews: `brew install codex`
 
 ## CRITICAL: Never Skip Reviews
@@ -40,10 +40,60 @@ The `gemini` CLI handles rate limit retries automatically. If the script exits w
 |---|---|
 | Requests per minute | 60 RPM |
 | Requests per day | 1,000 RPD |
+| **Capacity (tokens/time)** | **Very low — the real bottleneck** |
 | Model | Auto-selected by Google (upgrades over time) |
 | Cost | $0 |
 
-The CLI retries automatically on rate limit hits (resets in seconds). The script has a 1-hour timeout — if exceeded, it aborts and you should ask the user for help.
+**Important:** The RPM/RPD limits are rarely the issue. Google also enforces a **capacity quota** (total tokens processed per rolling time window) that is much more restrictive. Large review payloads (code + auto-context) can exhaust this quota in just a few requests, triggering a `TerminalQuotaError` with a multi-hour reset (typically 1-3 hours). This is especially tight on newer auto-selected models (e.g., Gemini 2.5 Pro).
+
+**To reduce quota pressure:**
+- Use `--no-context` for small/focused reviews to cut token usage
+- Split large reviews into smaller chunks
+- Use a paid API key to avoid capacity limits entirely (see below)
+
+The CLI retries automatically on per-minute rate limit hits (resets in seconds). The capacity quota does NOT retry — it requires waiting for the reset window. The script has a 1-hour timeout — if exceeded, it aborts and you should ask the user for help.
+
+## Paid API (Recommended for Regular Use)
+
+The free tier's capacity quota makes it impractical for more than a few reviews per session. A paid API key removes this bottleneck at minimal cost.
+
+### Setup
+
+1. Get a key from [Google AI Studio](https://aistudio.google.com/apikey)
+2. **Enable billing** on the associated Google Cloud project — without billing, the API key still uses free-tier capacity limits (the same bottleneck as OAuth). In AI Studio: Settings → Billing, or in the [Google Cloud Console](https://console.cloud.google.com/billing).
+3. **Configure the gemini CLI** to use API key auth:
+   ```bash
+   # Set auth type in gemini settings (~/.gemini/settings.json)
+   # Run gemini interactively once — it will prompt to select auth method.
+   # Choose "Gemini API Key" when prompted.
+   ```
+4. Set the environment variable:
+   ```bash
+   export GEMINI_API_KEY="your-key-here"
+   ```
+   Add this to your shell profile so new shells pick it up. If you're in an already-running session (e.g., Claude Code), you'll need to source the file or restart the session.
+5. Verify it works: `gemini -p "hello"` — should respond without OAuth prompts or quota errors.
+
+### Cost Estimate (Gemini 2.5 Pro)
+
+| | Tokens | Cost |
+|---|---|---|
+| Input per review (context + diff) | ~8-12K | ~$0.01-0.015 |
+| Output per review | ~1-2K | ~$0.01-0.02 |
+| **Total per review** | | **~$0.02-0.04** |
+
+| Usage level | Reviews/month | Est. cost |
+|---|---|---|
+| Light (few/week) | ~20 | ~$0.50 |
+| Moderate (few/day) | ~60 | ~$1.50 |
+| Heavy (many/day) | ~150 | ~$4.00 |
+
+### Tracking Usage
+
+- **AI Studio** → Dashboard → Usage tab (requests, tokens, costs)
+- **Google Cloud Console** → APIs & Services → Dashboard → "Generative Language API"
+- **Billing Reports** → group by SKU for per-model breakdown
+- **Tip:** Create multiple keys in the same project to separate ai-review usage from interactive gemini CLI use
 
 ## How to Use
 
