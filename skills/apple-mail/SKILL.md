@@ -1,6 +1,11 @@
 ---
 name: apple-mail
 description: Read email via Apple Mail.app and AppleScript. Use when asked to check, search, or read emails. READ ONLY — no sending or modifying emails.
+license: MIT
+metadata:
+  author: eins78
+  repo: https://github.com/eins78/skills
+  version: "1.0.0"
 ---
 
 # Apple Mail (Read Only)

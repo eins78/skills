@@ -80,6 +80,22 @@ Skills can reference other skills by name in their instructions. Claude loads bo
 - Continuous improvement: after using a skill, note gaps and propose concrete improvements
 - Installation: symlink from `~/.claude/skills/` to the skill directory
 
+## Versioning
+
+Every skill MUST have a `metadata.version` field in its SKILL.md frontmatter.
+
+**When a skill is changed, increment its version** (semver):
+
+- **Patch** (`x.y.Z`): bug fixes, wording improvements, minor clarifications
+- **Minor** (`x.Y.0`): new sections, new patterns, expanded coverage
+- **Major** (`X.0.0`): structural reorganization, removed sections, breaking workflow changes
+
+**When any skill version is bumped, bump the plugin version** in all 4 metadata files (`package.json`, `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.cursor-plugin/plugin.json`):
+
+- Skill patch → plugin patch (at minimum)
+- Skill minor → plugin minor (at minimum)
+- Skill major → plugin major
+
 ## Commit Conventions
 
 Follow the existing commit style: `<skill-name>: <description>` for skill changes, plain descriptions for repo-level changes.

@@ -1,6 +1,11 @@
 ---
 name: chrome-browser
 description: Use when setting up a dedicated Chrome browser for Playwright MCP with session persistence, or when encountering Cloudflare challenges during browser automation. Covers CDP setup, launchd auto-start, and persistent login sessions.
+license: MIT
+metadata:
+  author: eins78
+  repo: https://github.com/eins78/skills
+  version: "1.0.0"
 ---
 
 # Dedicated Chrome Browser

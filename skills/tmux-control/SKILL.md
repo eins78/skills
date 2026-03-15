@@ -1,6 +1,11 @@
 ---
 name: tmux-control
 description: Use when sending commands to tmux panes, reading pane output, creating windows/panes, or monitoring tmux sessions. Covers reliable targeting, synchronization, and output capture patterns.
+license: MIT
+metadata:
+  author: eins78
+  repo: https://github.com/eins78/skills
+  version: "1.0.0"
 ---
 
 # tmux Control Patterns
