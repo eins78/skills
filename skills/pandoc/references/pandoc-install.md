@@ -13,7 +13,7 @@ brew install pandoc
 LaTeX is required by default. Options:
 
 ```bash
-# Full TeX Live (large, ~4GB, everything included)
+# Full TeX Live (large, ~6.9GB, everything included)
 brew install --cask mactex
 
 # TeX Live without GUI apps (~300MB smaller)
