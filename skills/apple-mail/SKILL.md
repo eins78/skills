@@ -5,7 +5,7 @@ license: MIT
 metadata:
   author: eins78
   repo: https://github.com/eins78/agent-skills
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Apple Mail (Read Only)
@@ -43,11 +43,34 @@ mail_query() {
   return 1
 }
 
-# Usage:
-mail_query 'tell application "Mail" to count (messages of inbox whose read status is false)'
+# Usage: per-account queries only — see "Do not query `inbox` directly" below.
+mail_query 'tell application "Mail" to count (messages of mailbox "INBOX" of account "ACCOUNT" whose read status is false)'
 ```
 
-Reasonable defaults: **15s timeout, 3 retries, 2s sleep**. Bump the timeout for `messages of every mailbox` (cross-account searches) to 60s. If all 3 retries fail, report the failure and move on — never block a briefing on Mail.
+Reasonable defaults for a single small account: **15s timeout, 3 retries, 2s
+sleep**. A large IMAP account (thousands of messages) needs much more —
+measured up to ~90s for one `whose` count on a ~2400-message Gmail INBOX.
+`${CLAUDE_SKILL_DIR}/scripts/mail-across-accounts.sh` (below) already budgets
+120s per call for this. If all retries fail, report the failure and move
+on — never block a briefing on Mail.
+
+## Do not query `inbox` directly
+
+`inbox` (unqualified, no account) is unified in **membership** — it does
+contain every account's mail — but not in **order**: it is grouped
+contiguously by account, newest-first only *within* each account's segment,
+in an order unrelated to account-creation order. `message 1 of inbox` is
+therefore the newest message in whichever account happens to sort first, not
+the newest message overall — this is how a positional read of `inbox` ends up
+silently covering one account. Worse, a `whose` clause over `inbox` (e.g.
+`whose read status is false`) has to walk every account and can exceed
+AppleScript's 120s event timeout on a large multi-account store, failing
+with `-1712` outright rather than just being slow.
+
+Every recipe below queries a named account's mailbox instead. Use
+`${CLAUDE_SKILL_DIR}/scripts/mail-across-accounts.sh` for the common jobs
+(it iterates accounts sequentially, with per-call timeout + retry already
+handled) or the inline per-account pattern shown in each recipe.
 
 ## Account & Machine Context
 
@@ -61,17 +84,34 @@ See `docs/email-accounts.md` for which accounts are configured on which machines
 osascript -e 'tell application "Mail" to get name of every account'
 ```
 
-### Count unread messages
+### Count unread messages (all accounts)
 
 ```bash
-osascript -e 'tell application "Mail" to count (messages of inbox whose read status is false)'
+"${CLAUDE_SKILL_DIR}/scripts/mail-across-accounts.sh" unread
 ```
 
-### Recent inbox messages (last 10)
+Prints one `account, unread, total` row per account plus a `TOTAL` row. An
+account whose query fails is reported as `ERROR` on stderr and excluded from
+`TOTAL` — never silently counted as 0, since that is indistinguishable from
+"actually empty". Single account, inline:
+
+```bash
+osascript -e 'tell application "Mail" to count (messages of mailbox "INBOX" of account "ACCOUNT" whose read status is false)'
+```
+
+### Recent messages across all accounts (last 10)
+
+```bash
+"${CLAUDE_SKILL_DIR}/scripts/mail-across-accounts.sh" recent 10
+```
+
+Collects the newest messages from each account and merge-sorts by date, so
+this is the 10 most recent messages overall — not the 10 most recent in
+whichever account happens to come first. Single account, inline:
 
 ```bash
 osascript -e 'tell application "Mail"
-  set recentMsgs to messages 1 thru 10 of inbox
+  set recentMsgs to messages 1 thru 10 of mailbox "INBOX" of account "ACCOUNT"
   repeat with msg in recentMsgs
     set msgInfo to "From: " & (sender of msg) & " | Subject: " & (subject of msg) & " | Date: " & (date sent of msg)
     log msgInfo
@@ -81,27 +121,38 @@ end tell'
 
 ### Get message content by index
 
+Message 1 is the most recent **within that account's mailbox**, not overall —
+find the account and index first (`recent` above, or `search` below), then
+read it:
+
 ```bash
 osascript -e 'tell application "Mail"
-  set msg to message 1 of inbox
+  set msg to message 1 of mailbox "INBOX" of account "ACCOUNT"
   return "From: " & (sender of msg) & "\nSubject: " & (subject of msg) & "\nDate: " & (date sent of msg) & "\n\n" & (content of msg)
 end tell'
 ```
 
-### Search messages by subject
+### Search messages by subject (all accounts)
+
+```bash
+"${CLAUDE_SKILL_DIR}/scripts/mail-across-accounts.sh" search "keyword"
+```
+
+Searches every account's INBOX; matches come back as a
+`date, account, sender, subject` TSV. Single account, inline:
 
 ```bash
 osascript -e 'tell application "Mail"
-  set foundMsgs to (messages of inbox whose subject contains "keyword")
+  set foundMsgs to (messages of mailbox "INBOX" of account "ACCOUNT" whose subject contains "keyword")
   count foundMsgs
 end tell'
 ```
 
-### Search and read first match
+### Search and read first match (one account)
 
 ```bash
 osascript -e 'tell application "Mail"
-  set foundMsgs to (messages of inbox whose subject contains "keyword")
+  set foundMsgs to (messages of mailbox "INBOX" of account "ACCOUNT" whose subject contains "keyword")
   if (count foundMsgs) > 0 then
     set msg to item 1 of foundMsgs
     return "From: " & (sender of msg) & "\nSubject: " & (subject of msg) & "\nDate: " & (date sent of msg) & "\n\n" & (content of msg)
@@ -111,7 +162,10 @@ osascript -e 'tell application "Mail"
 end tell'
 ```
 
-### Search across all mailboxes
+To find which account the match is in first, run **Search messages by
+subject** above, then read it here with that account name.
+
+### Search across all mailboxes (not just INBOX)
 
 Only for small stores or a handful of accounts. For old mail, or once the account
 count climbs, this becomes unusable — use **Searching large archives** below instead.
@@ -119,7 +173,8 @@ count climbs, this becomes unusable — use **Searching large archives** below i
 ```bash
 osascript -e 'tell application "Mail"
   set foundMsgs to (messages of every mailbox of every account whose subject contains "keyword")
-  -- Note: this can be slow across many accounts
+  -- Can take well over a minute across many accounts and large mailboxes;
+  -- see "Do not query `inbox` directly" above for the timeout this risks.
 end tell'
 ```
 
@@ -131,9 +186,11 @@ osascript -e 'tell application "Mail" to get name of every mailbox of account "G
 
 ### List attachments
 
+Find the account first (`search` above), then, one account at a time:
+
 ```bash
 osascript -e 'tell application "Mail"
-  set msg to item 1 of (messages of inbox whose subject contains "invoice")
+  set msg to item 1 of (messages of mailbox "INBOX" of account "ACCOUNT" whose subject contains "invoice")
   set out to ""
   repeat with a in (mail attachments of msg)
     set out to out & (name of a) & " [" & (file size of a) & " bytes]" & linefeed
@@ -144,7 +201,7 @@ end tell'
 
 ### Save attachments
 
-Build the file target **outside** the `tell` block — via a handler called with `my`, so it still works inside a loop:
+Build the file target **outside** the `tell` block — via a handler called with `my`, so it still works inside a loop. This example is scoped to one account; run once per account (or loop over `mail-across-accounts.sh accounts`) if the message could be in any of them:
 
 ```bash
 osascript <<'EOF'
@@ -154,7 +211,7 @@ end posixTarget
 
 set outDir to "/tmp/attachments/"   -- must already exist
 tell application "Mail"
-  repeat with m in (messages of inbox whose subject contains "invoice")
+  repeat with m in (messages of mailbox "INBOX" of account "ACCOUNT" whose subject contains "invoice")
     repeat with a in (mail attachments of m)
       save a in (my posixTarget(outDir & (name of a)))
     end repeat
@@ -304,14 +361,22 @@ mdls -name kMDItemTextContent /path/to/some.emlx     # (null) — yet no text wa
 | Term is known to be in the mail but does not match | It lives in an attachment — absent in `.partial.emlx`, base64 elsewhere | Extract via **Save attachments**, then search those files; check for the `NOT-DOWNLOADED` flag |
 | Cross-account AppleScript search hangs | Impractical across many accounts | Use **Searching large archives** |
 | `-1728 Can't get POSIX file "…"`, or `Can't set «constant ldaslsba» to …` | Unqualified terms resolve against Mail's dictionary | See **Gotchas inside `tell application "Mail"`** |
+| Unread/message count looks implausibly low for a known-active account | Read `message 1 of inbox`, or a `whose` filtered on unqualified `inbox` — see **Do not query `inbox` directly** | Query `mailbox "INBOX" of account "NAME"`, or use `mail-across-accounts.sh` |
+| `-1712 AppleEvent timed out` on a `whose` query | The query ran over unqualified `inbox`, which fans out to every account | Same fix — scope to one account, or use `mail-across-accounts.sh` |
+| Several `osascript` calls issued at once all time out | Mail's AppleScript bridge serializes; concurrent calls contend | Iterate accounts sequentially, one `osascript` call at a time |
 
 ## Notes
 
-- AppleScript `messages of inbox` returns a unified inbox across all accounts
-- Messages are indexed newest-first (message 1 = most recent)
+- `inbox` (unqualified) is unified in *membership* across accounts but not in
+  *order* — see **Do not query `inbox` directly**. Query a named account's
+  mailbox instead.
+- Messages are indexed newest-first **within one account's mailbox only**;
+  there is no single index that is newest-first across accounts
 - `content of msg` returns plain text body; `source of msg` returns raw MIME
 - Large mailboxes can be slow — use `whose` clauses to filter
-- Timeout: use `with timeout of 60 seconds` for slow queries
+- Timeout: a `with timeout of N seconds` wrapper only raises AppleScript's
+  *internal* event timeout — it does not recover a wedged `osascript`
+  process. Always pair it with a shell-level `timeout` (see **Reliability**)
 
 ## Self-Improvement
 
