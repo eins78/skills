@@ -74,10 +74,16 @@ elif has 'AcctErr'; then
   # Every query mentioning AcctErr fails, every time — simulates a wedged or
   # erroring account that must not be silently reported as empty.
   exit 1
-elif has 'whose read status is false' && has '"Acct1"'; then
+elif has 'unread count of mailbox' && has '"Acct1"'; then
   echo 1
-elif has 'whose read status is false' && has '"Acct2"'; then
+elif has 'unread count of mailbox' && has '"Acct2"'; then
   echo 2
+elif has 'whose read status is false'; then
+  # The script must no longer emit this form for unread counts — it is the
+  # slow, mailbox-walking query that wedged Mail on 2026-09-07. Fail loudly if
+  # it comes back, rather than answering it and letting the regression pass.
+  echo "FAKE: refusing slow 'whose read status is false' query" >&2
+  exit 1
 elif has 'subject contains' && has '"Acct1"'; then
   has '"widget"' && printf '2026-01-05 10:00:00\tAcct1\talice@a.example\tA-newest widget order\n'
   exit 0

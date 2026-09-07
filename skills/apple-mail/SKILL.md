@@ -44,15 +44,20 @@ mail_query() {
 }
 
 # Usage: per-account queries only — see "Do not query `inbox` directly" below.
-mail_query 'tell application "Mail" to count (messages of mailbox "INBOX" of account "ACCOUNT" whose read status is false)'
+mail_query 'tell application "Mail" to return unread count of mailbox "INBOX" of account "ACCOUNT"'
 ```
 
 Reasonable defaults for a single small account: **15s timeout, 3 retries, 2s
-sleep**. A large IMAP account (thousands of messages) needs much more —
-measured up to ~90s for one `whose` count on a ~2400-message Gmail INBOX.
-`${CLAUDE_SKILL_DIR}/scripts/mail-across-accounts.sh` (below) already budgets
-120s per call for this. If all retries fail, report the failure and move
-on — never block a briefing on Mail.
+sleep**. A large IMAP account (thousands of messages) needs much more for any
+query that *enumerates* messages — measured up to ~90s for one `whose` count on
+a ~2400-message Gmail INBOX. `${CLAUDE_SKILL_DIR}/scripts/mail-across-accounts.sh`
+(below) already budgets 120s per call for this. If all retries fail, report the
+failure and move on — never block a briefing on Mail.
+
+**Prefer a property read over a `whose` clause wherever one exists.** `unread
+count` is served from Mail's own index and does not walk the mailbox; `count
+(messages … whose read status is false)` walks every message. This is not a
+micro-optimisation — see the wedge measurement below.
 
 ## Do not query `inbox` directly
 
@@ -65,7 +70,29 @@ the newest message overall — this is how a positional read of `inbox` ends up
 silently covering one account. Worse, a `whose` clause over `inbox` (e.g.
 `whose read status is false`) has to walk every account and can exceed
 AppleScript's 120s event timeout on a large multi-account store, failing
-with `-1712` outright rather than just being slow.
+with `-1712` outright rather than just being slow. Measured 2026-09-07: that
+query did not return within 90s and left Mail.app **wedged** — every
+subsequent query timed out until `killall Mail && open -a Mail`. Treat it as
+a hang risk, not a latency cost.
+
+### The one exception: `unread count of inbox`
+
+The ban above is about *enumeration and ordering*, so it does not apply to
+`unread count of inbox`, which is a property read. Measured on the same store,
+same day:
+
+| query | result | time |
+|---|---|---|
+| `unread count of inbox` | 2243 | 0.11s |
+| `count (messages of inbox whose read status is false)` | — | no answer in 90s, wedged Mail |
+
+It is also **correct**, checked rather than assumed: the five per-account
+property reads (OFFICE 0, mfa 492, iCloud 152, Gmail 1599, KTE 0) sum to
+exactly 2243, and on the two accounts small enough to test both ways the two
+forms agreed (KTE 0, iCloud 152). So for a *total unread number* the unified
+property is the right call. Per-account iteration is still required whenever
+you need the messages themselves — which account a message belongs to, or any
+positional read — because that is what the ordering bug breaks.
 
 Every recipe below queries a named account's mailbox instead. Use
 `${CLAUDE_SKILL_DIR}/scripts/mail-across-accounts.sh` for the common jobs
@@ -96,7 +123,7 @@ account whose query fails is reported as `ERROR` on stderr and excluded from
 "actually empty". Single account, inline:
 
 ```bash
-osascript -e 'tell application "Mail" to count (messages of mailbox "INBOX" of account "ACCOUNT" whose read status is false)'
+osascript -e 'tell application "Mail" to return unread count of mailbox "INBOX" of account "ACCOUNT"'
 ```
 
 ### Recent messages across all accounts (last 10)

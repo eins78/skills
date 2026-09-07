@@ -25,10 +25,12 @@
 # MAIL_TIMEOUT_SECS overrides the per-call shell timeout (default 120).
 # 120s is not conservative padding: measured against a ~2400-message IMAP
 # INBOX, a single `count ... whose read status is false` took up to ~90s and
-# combining it with a plain `count` in one call took ~103s. A large IMAP
-# account can be this slow on its own, independent of the `inbox`-grouping
-# bug this script exists to route around — budget for it, and let a real
-# hang still get caught by the retry loop below.
+# combining it with a plain `count` in one call took ~103s. The unread half no
+# longer pays that (see `unread count` below); the plain `count` for the total
+# still enumerates, so the budget stays. A large IMAP account can be this slow
+# on its own, independent of the `inbox`-grouping bug this script exists to
+# route around — budget for it, and let a real hang still get caught by the
+# retry loop below.
 #
 # Read only: never sends, deletes, or modifies mail.
 
@@ -96,7 +98,16 @@ cmd_unread() {
     # large IMAP account each one alone can take close to TIMEOUT_SECS, so
     # combining them risked losing both to one slow round trip. Split, a
     # slow or failing half is reported on its own and doesn't sink the other.
-    if ! unread=$(mail_query "tell application \"Mail\" to count (messages of mailbox \"INBOX\" of account \"$acct\" whose read status is false)"); then
+    #
+    # unread uses the `unread count` PROPERTY, not `count (... whose read
+    # status is false)`. The property is served from Mail's own index; the
+    # `whose` clause walks every message. Measured 2026-09-07 on this store:
+    # the property answered the unified inbox in 0.11s, while the same
+    # question as a `whose` count did not return in 90s and left Mail wedged
+    # (a `killall Mail` was needed). Equivalence was checked, not assumed —
+    # both forms returned 0 for KTE and 152 for iCloud, and the five
+    # per-account property reads summed to exactly the unified 2243.
+    if ! unread=$(mail_query "tell application \"Mail\" to return unread count of mailbox \"INBOX\" of account \"$acct\""); then
       echo "ERROR: account '$acct' unread count failed after $MAX_ATTEMPTS attempts — NOT counted as 0" >&2
       had_error=1
       unread=""
