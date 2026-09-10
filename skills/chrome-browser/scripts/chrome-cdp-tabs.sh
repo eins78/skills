@@ -46,8 +46,8 @@ if command -v jq >/dev/null 2>&1; then
   else
     printf '%s' "${response}" | jq '[.[] | select(.type == "page") | {id, type, title, url}]'
   fi
-elif command -v python3 >/dev/null 2>&1; then
-  printf '%s' "${response}" | python3 -m json.tool
 else
-  printf '%s\n' "${response}"
+  # A version-manager python3 shim can exist on PATH yet exit non-zero, so try it
+  # and fall back to raw output rather than testing with `command -v`.
+  printf '%s' "${response}" | python3 -m json.tool 2>/dev/null || printf '%s\n' "${response}"
 fi

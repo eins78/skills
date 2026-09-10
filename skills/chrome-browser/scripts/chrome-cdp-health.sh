@@ -17,13 +17,18 @@ response="$(curl -fsS --max-time 2 "${URL}" 2>/dev/null)" || {
 }
 
 # Extract webSocketDebuggerUrl. Prefer python3 (handles JSON escaping properly);
-# fall back to grep/sed so the script works without python3 installed.
+# fall back to sed so the script works without a usable python3.
+#
+# `command -v python3` is not enough: a version-manager shim (asdf, pyenv) exists
+# on PATH but exits non-zero when no version is selected. Probe it by running it.
 ws_url=""
-if command -v python3 >/dev/null 2>&1; then
+if python3 -c '' >/dev/null 2>&1; then
   ws_url="$(printf '%s' "${response}" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("webSocketDebuggerUrl",""))' 2>/dev/null || true)"
 fi
 if [[ -z "${ws_url}" ]]; then
-  ws_url="$(printf '%s' "${response}" | grep -o '"webSocketDebuggerUrl":"[^"]*"' | sed 's/"webSocketDebuggerUrl":"\(.*\)"/\1/')"
+  # sed, not grep: Chrome pretty-prints `": "` with whitespace after the colon,
+  # and sed exits 0 on no match, so `set -e`/pipefail cannot abort the assignment.
+  ws_url="$(printf '%s' "${response}" | sed -n 's/.*"webSocketDebuggerUrl"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
 fi
 
 if [[ -z "${ws_url}" ]]; then
