@@ -21,6 +21,13 @@
         <string>--disable-popup-blocking</string>
         <string>--disable-prompt-on-repost</string>
         <string>--disable-hang-monitor</string>
+        <!-- Frame throttling: keep rendering when the display sleeps or the window
+             is occluded. Without these, macOS marks the window hidden, Chrome stops
+             firing requestAnimationFrame, and Playwright actionability checks (which
+             wait for two stable animation frames) can never pass. -->
+        <string>--disable-backgrounding-occluded-windows</string>
+        <string>--disable-renderer-backgrounding</string>
+        <string>--disable-background-timer-throttling</string>
         <!-- Background Activity Reduction -->
         <string>--disable-breakpad</string>
         <string>--disable-background-networking</string>

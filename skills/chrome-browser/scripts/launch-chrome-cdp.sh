@@ -29,6 +29,15 @@ CHROME_FLAGS=(
   --disable-prompt-on-repost
   --disable-hang-monitor
 
+  # Frame throttling — keep rendering when the display sleeps or the window is
+  # occluded. macOS marks an occluded/asleep window hidden; Chrome then stops
+  # firing requestAnimationFrame, and Playwright's actionability check (which
+  # waits for two stable animation frames) can never pass. Measured on a VM:
+  # display asleep went from 0 frames/2s to 80.
+  --disable-backgrounding-occluded-windows
+  --disable-renderer-backgrounding
+  --disable-background-timer-throttling
+
   # Background Activity Reduction
   --disable-breakpad
   --disable-background-networking
