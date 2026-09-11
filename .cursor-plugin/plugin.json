@@ -2,7 +2,7 @@
   "name": "eins78-skills",
   "displayName": "eins78 Skills",
   "description": "Agent skills collection: session management, TypeScript patterns, Chrome CDP, tmux, Apple integrations",
-  "version": "4.3.1",
+  "version": "4.4.0",
   "author": {
     "name": "Max Albrecht",
     "email": "1@178.is"
