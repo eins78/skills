@@ -147,6 +147,12 @@ chrome-cdp-restart
 
 **Profile lock errors:** zombie Chrome holding `~/.cache/chrome-cdp-profile`. `pkill -f chrome-cdp-profile`, wait 2 s, relaunch.
 
+**Clicks time out on "visible, enabled and stable" — and the element is fine.** The machine's display has gone to sleep, or the Chrome window is covered by another window. macOS then reports the window as occluded, Chrome stops firing `requestAnimationFrame`, and Playwright's actionability check — which waits for two stable animation frames — can never pass. It looks like a selector or a page problem; it is neither, and it hits elements that worked moments earlier.
+
+Confirm it in one call: `document.visibilityState` reads `hidden` while the page is plainly loaded. The launch flags above (`--disable-backgrounding-occluded-windows` and friends) prevent it; if you are debugging a Chrome that was started without them, check the running process's argv before blaming the page. As a one-off unblock you can click via `element.click()` in `browser_evaluate`, which does not depend on animation frames — but verify the result in the application, not in the UI, and fix the launch flags rather than keeping the workaround.
+
+No third-party keep-awake app is needed, and neither is `caffeinate`: the flags make Chrome ignore the display state, which was measured directly — display asleep went from **0 animation frames in 2 s to 80**, with `visibilityState` back to `visible`. CDP screenshots keep working with the display asleep too.
+
 **Cloudflare challenges:** wait, don't retry. Real blocks are very rare; they need a fresh IP, not another browser restart.
 
 **CfT update:** run `${CLAUDE_SKILL_DIR}/scripts/install-cft.sh` to download/install the latest stable version (it also refreshes the `launch-chrome-cdp` symlink).
