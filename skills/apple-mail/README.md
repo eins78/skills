@@ -23,6 +23,19 @@ Two access paths, chosen by workload:
 They are complementary rather than alternatives: the archive path *locates* a
 message across a large store, and the AppleScript path *acts* on it once found.
 
+### `inbox` is unified in membership, not in order
+
+Unqualified `inbox` (issue #91) does contain every account's mail — a `whose`
+clause over it does span accounts, and a membership count matches the sum of
+per-account counts. What it does not do is date-sort across accounts: it is
+grouped contiguously by account, newest-first only within each account's
+segment. `message 1 of inbox` is therefore the newest message in whichever
+account happens to sort first, not the newest message overall — this is how a
+positional read of `inbox` silently ends up covering one account, and is the
+actual mechanism behind the "unified inbox" bug (see Validation below). Every
+recipe in `SKILL.md` and `scripts/mail-across-accounts.sh` queries a named
+account's mailbox instead of `inbox` for exactly this reason.
+
 ### Why not one path for everything?
 
 | Approach | Pros | Cons |
@@ -41,12 +54,14 @@ misreading is the bug this path exists to prevent.
 
 ```
 apple-mail/
-├── SKILL.md              # User-facing skill reference
-├── README.md             # This file
+├── SKILL.md                    # User-facing skill reference
+├── README.md                   # This file
 ├── scripts/
-│   └── emlx.py           # .emlx parser: `list` (triage TSV) and `show` (one message)
+│   ├── emlx.py                 # .emlx parser: `list` (triage TSV) and `show` (one message)
+│   └── mail-across-accounts.sh # Per-account iteration: accounts/unread/recent/search
 └── tests/
-    └── test-emlx.sh      # Smoke test against a synthetic fixture
+    ├── test-emlx.sh            # Smoke test against a synthetic fixture
+    └── test-mail-accounts.sh   # Offline (fake osascript) + --live (real store) tests
 ```
 
 ### Why a parser instead of a shell pipeline
@@ -96,15 +111,21 @@ corrected where measurement disagreed — see Testing.
 # Parser smoke test — synthetic fixture, touches no real mail
 bash skills/apple-mail/tests/test-emlx.sh
 
+# Per-account iteration script — offline (fake osascript, no Mail.app needed)
+bash skills/apple-mail/tests/test-mail-accounts.sh
+# ...and against the real store (needs Mail.app running, accounts configured)
+bash skills/apple-mail/tests/test-mail-accounts.sh --live
+
 # Verify Mail.app is accessible
 osascript -e 'tell application "Mail" to get name of every account'
 
-# Verify inbox access
-osascript -e 'tell application "Mail" to count messages of inbox'
+# Verify INBOX access for one account (do not query unqualified `inbox` — see
+# "`inbox` is unified in membership, not in order" above)
+osascript -e 'tell application "Mail" to count (messages of mailbox "INBOX" of account "ACCOUNT")'
 
 # Verify attachment listing (pick a subject you know has an attachment)
 osascript -e 'tell application "Mail"
-  set msg to item 1 of (messages of inbox whose subject contains "invoice")
+  set msg to item 1 of (messages of mailbox "INBOX" of account "ACCOUNT" whose subject contains "invoice")
   repeat with a in (mail attachments of msg)
     log (name of a)
   end repeat
@@ -121,7 +142,18 @@ gotchas were confirmed by reproducing each failure and its fix.
 
 `tests/test-emlx.sh` builds an `.emlx` fixture exercising a MIME-encoded subject, a
 folded header, quoted-printable body, and a stubbed attachment part, then asserts
-`emlx.py` decodes each. It is not run by `pnpm test`.
+`emlx.py` decodes each. It is not run by `pnpm test`. It has **11 checks**, not 12
+as an earlier report of this bug (and the task brief for the 1.2.0 fix) assumed —
+worth noting since both were otherwise carefully measured.
+
+`tests/test-mail-accounts.sh` covers `scripts/mail-across-accounts.sh`. Offline,
+it drives the script against a fake `osascript` replaying a synthetic 3-account
+fixture, and specifically asserts that `recent` merge-sorts by date across
+accounts rather than concatenating per account — the shape of regression that
+would silently reintroduce issue #91 — and that an erroring account is reported,
+never silently counted as empty. `--live` additionally checks the coverage
+invariant against the real store: sum of per-account INBOX counts equals
+`count (messages of inbox)`.
 
 ### Validation of the issue #69 recipes
 
@@ -138,6 +170,20 @@ the authoring machine — a different and smaller store than the reporter's:
 | Shell `grep`/`cut` header triage | **Replaced** — truncates ~20% folded subjects, does not decode, and `sort -u` orders dates lexicographically |
 | Search path `~/Library/Mail/V10` | **Broadened** to `~/Library/Mail` — version dirs change across macOS releases |
 
+### Validation of the issue #91 fix (unqualified `inbox`)
+
+Measured 2026-09-06 against 5 real accounts (`OFFICE`, `mfa`, `iCloud`,
+`1 (Gmail)`, `KTE`; two are empty). Issue #91 reported `messages of inbox` as
+returning only the iCloud account — that mechanism did not reproduce:
+
+| Claim | Result |
+|-------|--------|
+| `messages of inbox` returns only one account | **Not reproduced.** Membership is unified: `count (messages of inbox)` (3353) matched the sum of five per-account counts (3354, off by one message that arrived mid-measurement); unread matched exactly (2193 = 491+152+1550) |
+| The actual defect | **Ordering.** `inbox` is grouped contiguously by account, newest-first only within a segment. Probing `name of account of mailbox of message N of inbox` found the iCloud→Gmail boundary at exactly message 255/256 — iCloud's own count — with Gmail's Sept-6 mail starting at 256 while `message 1` was iCloud's Sept-3 mail |
+| A `whose` clause over `inbox` is merely slow | **Worse than slow.** `count (messages of inbox whose read status is false)` took 4m44s and exceeded AppleScript's 120s event timeout (`-1712`) — under the skill's own 15s×3 retry wrapper this failed outright, every time |
+| A large IMAP account's per-account queries are fast once scoped | **Not fully** — a single `whose` count on the ~2400-message Gmail INBOX alone took up to ~90s; combined with a plain count, ~103s. `mail-across-accounts.sh` budgets 120s per call and splits total/unread into separate calls so one slow half doesn't sink the other |
+| Parallel per-account `osascript` calls are safe | **No** — Mail's AppleScript bridge serializes; 4 of 5 concurrent calls timed out where sequential calls all succeeded |
+
 ## Known Gaps
 
 - **Terminology collisions are only partly enumerated.** The reserved-word list in
@@ -152,6 +198,5 @@ the authoring machine — a different and smaller store than the reporter's:
 
 - Script for structured JSON output from mail queries
 - Mailbox-specific search helpers
-- Unread count per account
 - Helper script for bulk attachment extraction with name sanitization
 - Optional attachment-text extraction (would need `pdftotext` and friends)
