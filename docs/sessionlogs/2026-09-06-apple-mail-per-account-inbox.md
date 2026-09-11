@@ -1,8 +1,9 @@
-# apple-mail: `inbox` is unified in membership, not order (issue #91, PR TBD)
+# apple-mail: `inbox` is unified in membership, not order (issue #91, PR #92)
 
-**Date:** 2026-09-06
+**Date:** 2026-09-06 (closed out 2026-09-11)
 **Source:** Claude Code (Opus 5)
 **Session:** Dispatched from a separate `home-workspace` session with a written brief; one plan-mode round, one mid-plan scope decision from Max, then implementation in a single pass.
+One compaction · ~241k output tokens.
 
 ## Summary
 
@@ -99,6 +100,22 @@ doesn't sink the other — the total can still succeed and print even if the
 unread count times out, and vice versa. Re-ran the full 5-account `unread`
 live: all five accounts succeeded, 1m34s wall time, clean exit 0.
 
+**Half of that rationale did not survive the week.** Max's follow-up commit
+`811d23a` (his own session, landed on this branch before the merge) replaced
+the unread query with the `unread count` *property* instead of
+`count (... whose read status is false)`. The property is served from Mail's
+index rather than walking the mailbox: 0.11s against the unified inbox,
+versus no answer in 90s and a wedged Mail.app for the `whose` form. So the
+cost measured here was largely self-inflicted — this session optimised the
+call *pattern* (split the combined query, raise the timeout) without
+questioning whether the query itself was the right AppleScript. The total
+still enumerates, so the 120s budget stays for that half.
+
+That commit also carves the one exception into this log's central rule:
+`unread count of inbox` is fine, because the ban on `inbox` is about
+enumeration and ordering and a property read does neither. Per-account
+iteration is still required for the messages themselves.
+
 ## 5. `trap ... RETURN` inside a bash function is not function-scoped
 
 `cmd_recent` used a temp file and `trap 'rm -f "$tmp"' RETURN` for cleanup.
@@ -153,8 +170,21 @@ one-off queries without a documented per-account pattern to copy.
 
 `~/.claude/skills/apple-mail` is a copy, not a symlink, and nothing refreshes
 it — it keeps the bug until re-synced by hand after this PR merges. Noted in
-the PR body; not touched here.
+the PR body; not touched here. Now that #92 is merged this is actionable —
+moved to Pending below.
 
 ## Pending
 
-- [ ] Max: merge or reject. No self-merge, per the brief (public repo, non-docs-only change).
+- [x] Max: merge or reject — merged 2026-09-11 as `414b166`, issue #91 closed
+      as completed. Not self-merged, per the brief.
+- [ ] **Max: `apple-mail` is double-bumped to 1.3.0 in release PR #88.** This
+      session set `metadata.version` to `1.2.0` by hand *and* left
+      `apple-mail: minor` in the changeset's `bumps:` block, so
+      `bump-skill-versions.sh` applied a second minor on top. CLAUDE.md says
+      not to edit those versions manually; the brief said to bump it, and this
+      session did both rather than either. Fix is yours to pick: revert
+      `SKILL.md` to `1.1.0` on main and let #88 regenerate 1.2.0, or accept
+      1.3.0 and skip 1.2.0. Not touched here — it is a skill file on main with
+      a live release PR attached.
+- [ ] Max: re-sync the deployed `~/.claude/skills/apple-mail` copy by hand. It
+      is a copy, not a symlink, and still carries the bug.
