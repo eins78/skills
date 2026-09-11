@@ -5,7 +5,7 @@ license: MIT
 metadata:
   author: eins78
   repo: https://github.com/eins78/agent-skills
-  version: "1.5.1"
+  version: "1.5.2"
 ---
 
 # Dedicated Chrome Browser

@@ -1,5 +1,47 @@
 # @eins78/agent-skills
 
+## 4.4.0
+
+### Minor Changes
+
+- [#92](https://github.com/eins78/agent-skills/pull/92) [`57afa23`](https://github.com/eins78/agent-skills/commit/57afa234fbd7f6e5e7d0c44bb263e2bb8183bd08) - **`apple-mail`** — recipes now iterate accounts instead of querying unqualified `inbox`.
+
+  `messages of inbox` is unified in membership but grouped by account in order, not
+  date-sorted, so a positional read like `message 1 of inbox` silently returns one
+  account's mail and a `whose` clause over it can exceed AppleScript's event timeout.
+  Every recipe now queries a named account's mailbox, backed by a new
+  `mail-across-accounts.sh` helper for the common cross-account jobs.
+
+  Unread counts also switch from `count (messages … whose read status is false)` to
+  the `unread count` property. The `whose` form walks every message: measured on a
+  five-account store it returned nothing in 90s and left Mail.app wedged, while the
+  property answered in 0.11s with an identical result. One carve-out follows from
+  this — `unread count of inbox` is safe to call unqualified, because the ordering
+  problem above only affects reads that enumerate.
+
+### Patch Changes
+
+- [#87](https://github.com/eins78/agent-skills/pull/87) [`a50b460`](https://github.com/eins78/agent-skills/commit/a50b460641d5f01b7f111335b3bad9136f47dfc4) - **`apple-mail`** — the description now covers on-disk archive search, not just AppleScript.
+
+  The skill has documented two access paths since 1.1.0, but its description named only Mail.app and AppleScript, so it under-triggered on requests to find old mail in a large or multi-account archive. It now names both paths and the attachment commands, and states that the on-disk path works with Mail.app closed.
+
+- [#94](https://github.com/eins78/agent-skills/pull/94) [`9d77979`](https://github.com/eins78/agent-skills/commit/9d77979f95c0b3aed807425b5005b688e072b1b7) - **`chrome-browser`** — browser automation no longer breaks when the display sleeps.
+
+  Chrome is now launched with `--disable-backgrounding-occluded-windows`, `--disable-renderer-backgrounding` and `--disable-background-timer-throttling`, in both the launchd plist and `launch-chrome-cdp.sh`. Without them, an asleep display or a covered window made every click time out on "visible, enabled and stable" — measured at 0 animation frames in 2 s, now 80. Troubleshooting gained an entry for the symptom, which looks like a selector bug and is not one.
+
+  Existing installs need to re-run `install-cft.sh` (or reload the plist) to pick up the new flags.
+
+- [#93](https://github.com/eins78/agent-skills/pull/93) [`2811dd6`](https://github.com/eins78/agent-skills/commit/2811dd6a28473283627a90136e937ad58f7bce9a) - **`chrome-browser`** — fixes `chrome-cdp-health`, `chrome-cdp-tabs` and `launch-chrome-cdp` reporting failure on hosts whose `python3` is a version-manager shim.
+
+  Two independent bugs made all three helpers exit non-zero while CDP was in fact healthy:
+
+  - **Availability was tested with `command -v python3`.** An asdf or pyenv shim is present on `PATH` but exits non-zero when no version is selected, so the scripts took the python3 branch and it failed. Availability is now probed by running `python3 -c ''`.
+  - **The `chrome-cdp-health` fallback pattern had no whitespace tolerance.** Chrome pretty-prints `"webSocketDebuggerUrl": "ws://…"` with a space after the colon, so `grep -o '"webSocketDebuggerUrl":"[^"]*"'` matched nothing. `grep` then exited 1, and under `set -euo pipefail` that aborted the assignment — the script exited 1 ("CDP unreachable") instead of reaching its own "no webSocketDebuggerUrl in payload" branch. Extraction now uses `sed -n`, which tolerates the whitespace and exits 0 on no match.
+
+  `launch-chrome-cdp` and `chrome-cdp-tabs` piped into `python3 -m json.tool` for pretty-printing; both now fall back to raw output instead of failing the script.
+
+  Verified on a host with a broken asdf `python3` shim: all three helpers returned 0 with CDP live, and on a host with a working `python3` behaviour is unchanged.
+
 ## 4.3.1
 
 ### Patch Changes
