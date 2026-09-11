@@ -45,9 +45,20 @@ CHROME_FLAGS=(
   --disable-features=Translate,TranslateUI,PasswordCheck,PasswordManagerOnboarding,AutofillServerCommunication,MediaRouter,DialMediaRouteProvider,OptimizationHints,GlobalMediaControls,TabOrganization,AiModeOmniboxEntryPoint,OmniboxAiModeEntryPointVariations
 )
 
+# Pretty-print /json/version, falling back to raw output. Never fails the script:
+# a version-manager python3 shim can exist on PATH yet exit non-zero.
+print_cdp_version() {
+  local body
+  body="$(curl -s "${CDP_URL}/json/version")"
+  if command -v jq >/dev/null 2>&1 && printf '%s' "${body}" | jq . 2>/dev/null; then
+    return 0
+  fi
+  printf '%s' "${body}" | python3 -m json.tool 2>/dev/null || printf '%s\n' "${body}"
+}
+
 if curl -s "${CDP_URL}/json/version" >/dev/null 2>&1; then
   echo "Chrome CDP already available on :${PORT}"
-  curl -s "${CDP_URL}/json/version" | python3 -m json.tool
+  print_cdp_version
   exit 0
 fi
 
@@ -66,7 +77,7 @@ disown
 for _ in {1..30}; do
   if curl -s "${CDP_URL}/json/version" >/dev/null 2>&1; then
     echo "Chrome CDP ready on :${PORT}"
-    curl -s "${CDP_URL}/json/version" | python3 -m json.tool
+    print_cdp_version
     exit 0
   fi
   sleep 0.5
